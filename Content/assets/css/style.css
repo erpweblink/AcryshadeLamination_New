@@ -1526,7 +1526,7 @@ html[data-theme="dark"] {
 
 .admin-sidebar {
     border-right: 1px solid var(--admin-sidebar-border);
-    background: linear-gradient(180deg, rgba(255,255,255,.16) 0%, rgba(255,255,255,0) 25%), linear-gradient(184deg, #061b86 0%, #163a87 45%, #2d6be0 100%);
+    background: linear-gradient(180deg, rgba(255, 255, 255, .16) 0%, rgba(255, 255, 255, 0) 25%), linear-gradient(184deg, #374b73 0%, #1a3263 45%, #5087ef 100%);
     color: var(--admin-sidebar-text-strong);
     box-shadow: inset 1px 0 0 rgba(255,255,255,.15), inset 0 1px 0 rgba(255,255,255,.2), 6px 0 20px rgba(0,0,0,.18);
 }

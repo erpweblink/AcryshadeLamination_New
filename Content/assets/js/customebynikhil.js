@@ -12,3 +12,14 @@
     });
 
 });
+
+function autoClearProductImages() {
+    debugger;
+    Object.keys(localStorage).forEach(function (key) {
+
+        if (key.startsWith("ProductImage_")) {
+            hasImageData = true;
+            localStorage.removeItem(key);
+        }
+    });
+}

@@ -269,7 +269,6 @@
 
             // ADD NEW ROW
             $(document).on('click', '.btnAdd', function () {
-
                 var lastRow = $('#tblRawMaterial tbody tr:last');
                 if (!validateRow(lastRow)) return;
 
@@ -287,9 +286,11 @@
                     .addClass('btnDelete')
                     .attr('style', 'border:none!important;background:none!important')
                     .html('<i class="bi bi-trash-fill" style="color:red;font-size:23px"></i>');
+                $(this).siblings(".btnRemove").hide();
 
                 // Create new row
-                var newRow = `  <tr style="transition: 0.3s;">
+                var newRow =
+                    `  <tr style="transition: 0.3s;">
                 <!-- Sr No -->
                  <td class="srno text-center"
                      style="border: 1px solid #e3e6f0; padding: 10px; font-weight: 600;">1
@@ -397,6 +398,10 @@
                     <button type="button" class="btnAdd" style="border:none;background:none;cursor:pointer;">
                         <i class="bi bi-plus-square-fill" style="color:#16a34a;font-size:26px;"></i>
                     </button>
+
+                    <button type="button" class="btnRemove" style="border:none;background:none;cursor:pointer;margin-left:5px;">
+                        <i class="bi bi-dash-square-fill" style="color:red;font-size:26px;"></i>
+                    </button>
                 </td>
             </tr>
         `;
@@ -406,6 +411,27 @@
 
                 updateSerialNumbers();
             });
+
+            $(document).on("click", ".btnRemove", function () {
+                debugger;
+                var currentRow = $(this).closest("tr");
+                var previousRow = currentRow.prev("tr");
+
+                currentRow.remove();
+
+                // Make previous row's Add/Remove buttons visible if needed
+                if (previousRow.length) {
+
+                    var btn = previousRow.find(".btnDelete");
+                    btn.removeClass('btnDelete')
+                        .addClass('btnAdd')
+                        .attr('style', 'border:none;background:none;cursor:pointer;')
+                        .html(' <i class="bi bi-plus-square-fill" style="color:#16a34a;font-size:26px;"></i>');
+                }
+
+                updateSerialNumbers();
+            });
+
 
             // DELETE ROW
             $(document).on('click', '.btnDelete', function () {
@@ -533,7 +559,6 @@
             });
         }
 
-      
         $(document).on('change', '#check_address', function () {
             if ($(this).is(':checked')) {
                 var DealerId = $("#<%= hdnDealerId.ClientID %>").val();
@@ -548,7 +573,7 @@
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (response) {
-                       
+
                         if (response.d.length > 0) {
 
                             $("#<%= txtCustName.ClientID %>").val(DealerName);
@@ -567,7 +592,7 @@
                     }
                 });
             } else {
-               
+
                 $("#<%= txtCustName.ClientID %>").val('');
                 $("#<%= txtShipAddress.ClientID %>").val('');
                 $("#<%= txtShipPinCode.ClientID %>").val('');
@@ -590,8 +615,11 @@
 
                 if (index == data.length - 1) {
                     btnHtml =
-                        '<button  type="button" class="btnAdd" style="border: none; background: none; cursor: pointer;">' +
+                        '<button type="button" class="btnAdd" style="border:none;background:none;cursor:pointer;">' +
                         '<i class="bi bi-plus-square-fill" style="color:#16a34a;font-size:26px"></i>' +
+                        '</button>' +
+                        '<button type="button" class="btnRemove" style="border:none;background:none;cursor:pointer;margin-left:5px;">' +
+                        '<i class="bi bi-dash-square-fill" style="color:red;font-size:26px;"></i>' +
                         '</button>';
                 }
                 else {
@@ -727,8 +755,11 @@
 
                 if (index == data.length - 1) {
                     btnHtml =
-                        '<button  type="button" class="btnAdd" style="border: none; background: none; cursor: pointer;">' +
+                        '<button type="button" class="btnAdd" style="border:none;background:none;cursor:pointer;">' +
                         '<i class="bi bi-plus-square-fill" style="color:#16a34a;font-size:26px"></i>' +
+                        '</button>' +
+                        '<button type="button" class="btnRemove" style="border:none;background:none;cursor:pointer;margin-left:5px;">' +
+                        '<i class="bi bi-dash-square-fill" style="color:red;font-size:26px;"></i>' +
                         '</button>';
                 }
                 else {
@@ -866,6 +897,178 @@
             updateSerialNumbers();
         }
 
+        function loadValidateWorkOrderData(data) {
+            $('#tblRawMaterial tbody').html('');
+            $('#check_address').prop('disabled', true);
+            $.each(data, function (index, item) {
+
+
+                var btnHtml = '';
+
+                if (index == data.length - 1) {
+                    btnHtml =
+                        '<button type="button" class="btnAdd" style="border:none;background:none;cursor:pointer;">' +
+                        '<i class="bi bi-plus-square-fill" style="color:#16a34a;font-size:26px"></i>' +
+                        '</button>' +
+                        '<button type="button" class="btnRemove" style="border:none;background:none;cursor:pointer;margin-left:5px;">' +
+                        '<i class="bi bi-dash-square-fill" style="color:red;font-size:26px;"></i>' +
+                        '</button>';
+                }
+                else {
+                    btnHtml =
+                        '<button type="button" class="btnDelete" style="border: none; background: none; cursor: pointer;">' +
+                        '<i class="bi bi-trash-fill" style="color:red;font-size:23px"></i>' +
+                        '</button>';
+                }
+
+                var row = '';
+
+                row += '<tr style="transition: 0.3s;">';
+
+                row += '<td class="srno text-center"  style="border:1px solid #e3e6f0;padding: 10px;font-weight: 600;">' + (index + 1) + '</td>';
+
+                // Product Name
+                row += '<td style="border: 1px solid #e3e6f0; padding: 8px;">' +
+                    '<textarea type = "text" name = "ProductName[]" autocomplete = "off" ' +
+                    'class="form-control productname" ' +
+                    'style = "border-radius: 8px; height: 42px; min-width: 250px;" >' + item.ProductName + '</textarea>' +
+                    '<div class="error-msg productname-error text-danger" style="font-size: 12px;"></div>' +
+                    '<input type="hidden" name="ProductId[]" class="productid" value="' + item.ProductID + '"/></td>';
+
+
+                //Type 
+                row += '<td style="border: 1px solid #e3e6f0; padding: 8px;">' +
+                    '<select name="Type[]" onchange="toggleSize(this)"' +
+                    'class="form-control typo" ' +
+                    'style="border-radius: 8px; min-width: 120px; resize: none;" >' +
+                    '<option value="Regular" ' + (item.ProductType == 'Regular' ? ' selected' : '') + '>Regular</option>' +
+                    '<option value="Custom"' + (item.ProductType == 'Custom' ? ' selected' : '') + '>Custom</option>' +
+                    '</select>' +
+                    '<div class="error-msg typo-error text-danger" style="font-size: 12px;"></div>' +
+                    '</td>';
+
+                //Description
+                row += '<td style="border: 1px solid #e3e6f0; padding: 8px;">' +
+                    '<textarea name="Description[]" autocomplete="off" ' +
+                    'class="form-control description"' +
+                    'style="border-radius: 8px; height: 42px; min-width: 200px;">' +
+                    item.ProductNote +
+                    '</textarea>' +
+                    ' <div class="error-msg description-error text-danger" style="font-size: 12px;"></div>' +
+                    '</td>';
+
+                //Size
+                row += '<td style="border: 1px solid #e3e6f0; padding: 8px;">';
+                row += '<select name="Size[]" class="form-control size"' +
+                    'style="border-radius: 8px; height: 42px; min-width: 120px;"  onchange="GetSQFeet(this)">';
+                row += '<option value="">-Select Size-</option>';
+                row += ' <option value="8x2"' + (item.Size == '8x2' ? ' selected' : '') + '>8x2</option>';
+                row += '  <option value="8x4"' + (item.Size == '8x4' ? ' selected' : '') + '>8x4</option>';
+                row += '</select>';
+                row += ' <div class="error-msg size-error text-danger" style="font-size: 12px;"></div>';
+                row += '</td>';
+
+
+                //Qty
+                row += '<td style="border: 1px solid #e3e6f0; padding: 8px;">' +
+                    '<input type="number"  min="1" name="Qty[]" ' +
+                    'class="form-control qty" onkeypress="return event.charCode >= 48 && event.charCode <= 57" ' +
+                    'value="' + item.Qty + '" ' +
+                    'style="border-radius: 8px; height: 42px; min-width: 70px;" oninput=" if(this.value==0) this.value=1; GetSQFeet(this)"/>' +
+                    '<div class="error-msg qty-error text-danger" style="font-size: 12px;"></div>' +
+                    '</td>';
+
+                //Sq Feet
+                row += '<td style = "border: 1px solid #e3e6f0; padding: 8px;" >' +
+                    '<input type="text" name="SqFeet[]" readonly="readonly" value="' + item.SqFeet + '" class="form-control sqfeet"' +
+                    'style = "border-radius: 8px; height: 42px; min-width: 60px;" /> ' +
+                    '<div class="error-msg sqfeet-error text-danger" style = "font-size: 12px;" ></div > ' +
+                    '</td >';
+
+                //Unit
+                row += '<td style="border: 1px solid #e3e6f0; padding: 8px;">' +
+                    '<input type="text" name="Unit[]" value="NOS" readonly="readonly" class="form-control unit" ' +
+                    'style="border-radius: 8px; height: 42px; min-width: 70px;"/>' +
+                    ' <div class="error-msg unit-error text-danger" style="font-size: 12px;"></div>' +
+                    '</td>';
+
+                const imageUrl = item.ImagePathName && item.ImagePathName.trim() !== 'null'
+                    ? item.ImagePathName.replace('~/', '/Content/')
+                    : 'https://placehold.co/100x100?text=Image';
+
+
+                // '<img src="https://placehold.co/100x100?text=Image"' +
+                //Upload image
+                row += '<td style = "border: 1px solid #e3e6f0; padding: 8px;" > ' +
+                    '<div class="position-relative d-inline-block">' +
+
+                    `<img src="${imageUrl}" ` +
+                    'class="product-image-preview" ' +
+                    'style="width: 70px; height: 70px; object-fit: cover; border: 1px solid #ddd; border-radius: 8px;" />' +
+
+                    '<a href="javascript:void(0);" ' +
+                    'class="upload-btn position-absolute bottom-0 end-0 rounded-circle text-white border border-white shadow" ' +
+                    'style="background:rgb(89 118 175); width: 27px;height: 26px;display: flex; align-items: center; justify-content: center; font-size: 13px; cursor: pointer;"> ' +
+                    '<i class="bi bi-camera"></i>' +
+                    '</a>' +
+
+                    '<input type = "file"' +
+                    'name = "ProductImage[]"' +
+                    'class="file-input"' +
+                    'accept = "image/*" ' +
+                    'style = "display: none;" /> ' +
+                    '</div > ' +
+                    ' <input type="hidden" value="' + item.ImagePathName + '" name="ProdImageName[]" class="file-input" />' +
+
+                    '<div class="error-msg productimage-error text-danger"' +
+                    'style = "font-size: 12px;" > ' +
+                    '</div>' +
+                    '</td>';
+
+                row += '<td class="text-center" style="border: 1px solid #e3e6f0; padding: 8px;">' +
+                    btnHtml +
+                    '</td>';
+
+                row += '</tr>';
+
+                $('#tblRawMaterial tbody').append(row);
+                var lastRow = $('#tblRawMaterial tbody tr:last')[0];
+                toggleSize(lastRow.querySelector('.typo'));
+            });
+            restoreProductImages();
+            updateSerialNumbers();
+        }
+
+        function restoreProductImages() {
+
+            $("#tblRawMaterial tbody tr").each(function (index) {
+
+                var image = localStorage.getItem("ProductImage_" + index);
+
+                if (image) {
+                    $(this)
+                        .find(".product-image-preview")
+                        .attr("src", image);
+                }
+            });
+        }
+
+        function highlightInvalidRow(index) {
+            // last row is the invalid row
+            var row = $("#tblRawMaterial tbody tr").eq(index);
+
+            validateRow(row);
+
+            row.css({
+                "background": "#fff3cd",
+                "border": "2px solid red"
+            });
+
+            $('html,body').animate({
+                scrollTop: row.offset().top - 100
+            }, 400);
+        }
+
         function validateFileSize(input) {
             if (input.files && input.files[0]) {
                 var fileSize = input.files[0].size;
@@ -931,15 +1134,17 @@
         });
 
         $(document).on('change', '.file-input', function () {
-
             const file = this.files[0];
 
             if (file) {
+                const rowIndex = $(this).closest('tr').index();
                 const reader = new FileReader();
                 const img = $(this).siblings('.product-image-preview');
 
                 reader.onload = function (e) {
                     img.attr('src', e.target.result);
+
+                    localStorage.setItem("ProductImage_" + rowIndex, e.target.result);
                 };
 
                 reader.readAsDataURL(file);
@@ -1195,7 +1400,6 @@
                                             <input type="file" name="ProductImage[]" class="file-input" accept="image/*" style="display: none;" />
                                             <input type="hidden" name="ProdImageName[]" class="file-input" />
                                         </div>
-
 
                                         <div class="error-msg productimage-error text-danger"
                                             style="font-size: 12px;">

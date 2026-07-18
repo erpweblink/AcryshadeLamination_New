@@ -16,6 +16,7 @@
                     timerProgressBar: true
                 }).then(function () {
                     window.location.href = '<%= Session["url"] %>';
+                    autoClearProductImages();
             });
         };
     </script>

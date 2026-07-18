@@ -18,8 +18,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.6.9/dist/sweetalert2.min.js"></script>
 </head>
 <body>
-    <div class="animated-bg"></div>
-    <div class="bg-overlay"></div>
     <form id="form1" runat="server">
         <section class="login-block multiclr">
             <div class="container">

@@ -95,7 +95,6 @@ public partial class Dashboard : System.Web.UI.Page
 
             da.Fill(dt);
         }
-
         rptMachines.DataSource = dt;
         rptMachines.DataBind();
     }

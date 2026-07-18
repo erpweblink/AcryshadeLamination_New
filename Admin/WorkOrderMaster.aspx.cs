@@ -1,4 +1,5 @@
 ﻿using AjaxControlToolkit;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -246,6 +247,12 @@ public partial class WorkOrderMaster : System.Web.UI.Page
             DateTime DeliveryDate = Convert.ToDateTime(txtDeliveryDate.Text);
             int Id = 0;
 
+
+            DataTable dt = new DataTable();
+            dt.Columns.AddRange(new DataColumn[9] { new DataColumn("ProdId"),new DataColumn("ProductName"),new DataColumn("Type"),
+                new DataColumn("Description"),new DataColumn("Size"),new DataColumn("Qty"),new DataColumn("SqFeet"),
+                new DataColumn("ProdImageName"),new DataColumn("ProdFiles") });
+
             // DETAIL VALUES
             string[] ProductId = Request.Form.GetValues("ProductId[]");
             string[] ProductName = Request.Form.GetValues("ProductName[]");
@@ -259,30 +266,65 @@ public partial class WorkOrderMaster : System.Web.UI.Page
 
             HttpFileCollection files = Request.Files;
 
+            dt.Rows.Clear();
 
-            bool hasBillingData = false;
+            int fileIndexs = 1;
+            int invalidRow = -1;
             for (int i = 0; i < ProductName.Length; i++)
             {
-                if (string.IsNullOrWhiteSpace(ProductName[i]) &&
-                   string.IsNullOrWhiteSpace(Description[i]) &&
-                   string.IsNullOrWhiteSpace(Size[i]) &&
-                   string.IsNullOrWhiteSpace(Qty[i]) &&
-                   string.IsNullOrWhiteSpace(Unit[i]))
+                HttpPostedFile filessss = null;
+
+                if (fileIndexs < files.Count)
                 {
-                    hasBillingData = true;
+                    filessss = files[fileIndexs];
+                    fileIndexs++;
+                }
+
+                dt.Rows.Add(
+                     ProductId[i],
+                     ProductName[i],
+                     Type[i],
+                     Description[i],
+                     Size[i],
+                     Qty[i],
+                     SqFeet[i],
+                     ProdImageName[i],
+                     filessss
+                 );
+
+                if (string.IsNullOrWhiteSpace(ProductName[i]) ||
+                   string.IsNullOrWhiteSpace(Size[i]) ||
+                   string.IsNullOrWhiteSpace(Qty[i]))
+                {
+                    invalidRow = i;
                     break;
                 }
             }
 
-            if (hasBillingData)
+            if (invalidRow != -1)
             {
-                ScriptManager.RegisterStartupScript(
-                       this,
-                       this.GetType(),
-                       "alert",
-                       "alert('Please add atleast one Product');",
-                       true
-                   );
+                var list = dt.AsEnumerable().Select(r => new
+                {
+                    ProductID = r["ProdId"],
+                    ProductName = r["ProductName"],
+                    ProductType = r["Type"],
+                    ProductNote = r["Description"],
+                    Size = r["Size"],
+                    Qty = r["Qty"],
+                    SqFeet = r["SqFeet"],
+                    ImagePathName = r["ProdImageName"],
+                    Files = r["ProdFiles"]
+                }).ToList();
+
+                string json = JsonConvert.SerializeObject(list);
+
+
+                ClientScript.RegisterStartupScript(
+                   this.GetType(),
+                   "LoadValidateWorkOrderData",
+                   "loadValidateWorkOrderData(" + json + ");highlightInvalidRow(" + invalidRow + ");",
+                   true);
+
                 return;
             }
 
@@ -438,7 +480,7 @@ public partial class WorkOrderMaster : System.Web.UI.Page
 
                         SaveCompressedImage(file, fullPath, quality: 60, maxWidth: 800);
 
-                       // file.SaveAs(Path.Combine(folderPath, fileName));
+                        // file.SaveAs(Path.Combine(folderPath, fileName));
 
                         cmd.Parameters.AddWithValue(
                             "@UploadedImage",
@@ -449,7 +491,7 @@ public partial class WorkOrderMaster : System.Web.UI.Page
                     {
                         if (!string.IsNullOrWhiteSpace(ProdImageName[i]) && ProdImageName[i] != "null")
                         {
-                            cmd.Parameters.AddWithValue("@UploadedImage", ProdImageName[i].Replace("/Content","~"));
+                            cmd.Parameters.AddWithValue("@UploadedImage", ProdImageName[i].Replace("/Content", "~"));
                         }
                     }
 
