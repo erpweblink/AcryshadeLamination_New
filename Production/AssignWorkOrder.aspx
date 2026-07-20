@@ -698,17 +698,18 @@
             html += "</tr>";
 
             $.each(wo.details, function (i, item) {
-                var badges = item.machineall;
-                var badgeHtml = badges;
+                var badges = item.machineall || "";
+                var badgeHtml = "";
 
-                if (badges === "M1") {
-                    badgeHtml = "<span class='badge bg-success'>M1</span>";
+                if (badges.includes("M1")) {
+                    badgeHtml += "<span class='badge bg-success'>M1</span> ";
                 }
-                else if (badges === "M2") {
-                    badgeHtml = "<span class='badge bg-warning text-dark'>M2</span>";
-                } else if (badges === "M1, M2") {
-                    badgeHtml = "<span class='badge bg-success'>M1</span>" + " " + "<span class='badge bg-warning text-dark'>M2</span>";
-                } else {
+
+                if (badges.includes("M2")) {
+                    badgeHtml += "<span class='badge bg-warning text-dark'>M2</span> ";
+                }
+
+                if (badgeHtml === "") {
                     badgeHtml = "<span class='badge bg-danger'>N/A</span>";
                 }
 

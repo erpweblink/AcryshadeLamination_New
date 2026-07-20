@@ -47,7 +47,7 @@ public partial class WoProductionS1 : System.Web.UI.Page
         DataTable dt = new DataTable();
 
         SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["constr"].ConnectionString);
-        using (SqlCommand cmd = new SqlCommand("SELECT ID,MachineName FROM tbl_MachineMaster WHERE AllocatedStage = 'Stage 1'", con))
+        using (SqlCommand cmd = new SqlCommand("SELECT ID,MachineName FROM tbl_MachineMaster WHERE AllocatedStage = 'Stage 1' AND IsDeleted = 0", con))
         {
             SqlDataAdapter da = new SqlDataAdapter(cmd);
             da.Fill(dt);

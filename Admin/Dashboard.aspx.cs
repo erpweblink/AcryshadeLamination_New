@@ -24,243 +24,73 @@ public partial class Dashboard : System.Web.UI.Page
         {
             if (!IsPostBack)
             {
-                FillGrid();
-                FillCardDetails();
-                Fillstage1capcity();
-                Fillstage2capcity();
-                FillPackagingCapacity();
-                Getdowntimehistory();
-                GetDispatchCount();
-                GetRejectedCount();
-                GetProductivity();
-                GetOrderCount();
+                if (Session["Role"].ToString()== "Admin")
+                {
+                    divAdmin.Visible = true;
+                }
             }
         }
 
     }
-    private void FillGrid()
+
+    [WebMethod]
+    public static Dictionary<string, object> GetDashboard(string fromDate, string toDate)
     {
-        DataTable dt = new DataTable();
+        Dictionary<string, object> result = new Dictionary<string, object>();
 
-        using (SqlDataAdapter da = new SqlDataAdapter("[dbo].[SP_DashboardDetails]", con))
+        using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["constr"].ConnectionString))
         {
-            da.SelectCommand.CommandType = CommandType.StoredProcedure;
-            da.SelectCommand.Parameters.AddWithValue("@SP_Action", "Currentmonthproductions");
-
-            da.Fill(dt);
+            result["Stage1"] = ToList(GetDataTable(con, "Todaysproductionsstage1", fromDate, toDate));
+            result["Stage2"] = ToList(GetDataTable(con, "Todaysproductionsstage2", fromDate, toDate));
+            result["Packaging"] = ToList(GetDataTable(con, "TodaysPackaging", fromDate, toDate));
+            result["Orders"] = ToList(GetDataTable(con, "OrderCount", fromDate, toDate));
+            result["Rejected"] = ToList(GetDataTable(con, "Returncount", fromDate, toDate));
+            result["Dispatch"] = ToList(GetDataTable(con, "Dispatchedcount", fromDate, toDate));
+            result["DownTime"] = ToList(GetDataTable(con, "GetBreakdown", fromDate, toDate));
+            result["Productivity"] = ToList(GetDataTable(con, "TodaysProductivity", fromDate, toDate));
+            result["MonthlyProduction"] = ToList(GetDataTable(con, "Currentmonthproductions", fromDate, toDate));
+            result["DealerCount"] = ToList(GetDataTable(con, "CardsDetails", fromDate, toDate));
         }
 
-        if (dt.Rows.Count > 0)
-        {
-            int production = Convert.ToInt32(dt.Rows[0]["CurrentMonthProduction"]);
-
-            lblMonthlyProduction.Text = production.ToString() + " Sq.ft";
-        }
-        else
-        {
-            lblMonthlyProduction.Text = "0 Sq.ft";
-        }
+        return result;
     }
 
-    private void FillCardDetails()
+    private static List<Dictionary<string, object>> ToList(DataTable dt)
     {
-        DataTable dt = new DataTable();
+        List<Dictionary<string, object>> rows = new List<Dictionary<string, object>>();
 
-        using (SqlDataAdapter da = new SqlDataAdapter("SP_DashboardDetails", con))
+        foreach (DataRow dr in dt.Rows)
         {
-            da.SelectCommand.CommandType = CommandType.StoredProcedure;
-            da.SelectCommand.Parameters.AddWithValue("@SP_Action", "CardsDetails");
+            Dictionary<string, object> row = new Dictionary<string, object>();
 
-            da.Fill(dt);
+            foreach (DataColumn col in dt.Columns)
+            {
+                row[col.ColumnName] = dr[col];
+            }
+
+            rows.Add(row);
         }
 
-        if (dt.Rows.Count > 0)
-        {
-            lblDealerCount.Text = dt.Rows[0]["DealersCount"].ToString();
-        }
-        else
-        {
-            lblDealerCount.Text = "0";
-        }
+        return rows;
     }
 
-    private void Fillstage1capcity()
+    private static DataTable GetDataTable(SqlConnection con, string action, string fromDate, string toDate)
     {
         DataTable dt = new DataTable();
 
         using (SqlDataAdapter da = new SqlDataAdapter("SP_DashboardDetails", con))
         {
             da.SelectCommand.CommandType = CommandType.StoredProcedure;
-            da.SelectCommand.Parameters.AddWithValue("@SP_Action", "Todaysproductionsstage1");
 
-            da.Fill(dt);
-        }
-        rptMachines.DataSource = dt;
-        rptMachines.DataBind();
-    }
-    private void Fillstage2capcity()
-    {
-        DataTable dt = new DataTable();
-
-        using (SqlDataAdapter da = new SqlDataAdapter("SP_DashboardDetails", con))
-        {
-            da.SelectCommand.CommandType = CommandType.StoredProcedure;
-            da.SelectCommand.Parameters.AddWithValue("@SP_Action", "Todaysproductionsstage2");
+            da.SelectCommand.Parameters.AddWithValue("@SP_Action", action);
+            da.SelectCommand.Parameters.AddWithValue("@FromDate", fromDate);
+            da.SelectCommand.Parameters.AddWithValue("@ToDate", toDate);
 
             da.Fill(dt);
         }
 
-        rptStage2Machines.DataSource = dt;
-        rptStage2Machines.DataBind();
+        return dt;
     }
-
-    private void FillPackagingCapacity()
-    {
-        DataTable dt = new DataTable();
-
-        using (SqlDataAdapter da = new SqlDataAdapter("SP_DashboardDetails", con))
-        {
-            da.SelectCommand.CommandType = CommandType.StoredProcedure;
-            da.SelectCommand.Parameters.AddWithValue("@SP_Action", "TodaysPackaging");
-
-            da.Fill(dt);
-        }
-
-        if (dt.Rows.Count > 0)
-        {
-            string percentage = Convert.IsDBNull(dt.Rows[0]["PackagingPercentage"])
-                                ? "0%"
-                                : dt.Rows[0]["PackagingPercentage"].ToString();
-
-            int completed = Convert.IsDBNull(dt.Rows[0]["PackagingSqFeet"])
-                            ? 0
-                            : Convert.ToInt32(dt.Rows[0]["PackagingSqFeet"]);
-
-            int allocated = Convert.IsDBNull(dt.Rows[0]["AllocatedSqFeet"])
-                            ? 0
-                            : Convert.ToInt32(dt.Rows[0]["AllocatedSqFeet"]);
-
-            lblPackaging.Text = percentage + " (" + completed + " / " + allocated + ")";
-        }
-        else
-        {
-            lblPackaging.Text = "0% (0 / 0)";
-        }
-    }
-    private void Getdowntimehistory()
-    {
-        DataTable dt = new DataTable();
-
-        using (SqlDataAdapter da = new SqlDataAdapter("SP_DashboardDetails", con))
-        {
-            da.SelectCommand.CommandType = CommandType.StoredProcedure;
-            da.SelectCommand.Parameters.AddWithValue("@SP_Action", "GetBreakdown");
-
-            da.Fill(dt);
-        }
-
-        if (dt.Rows.Count > 0)
-        {
-            rptDownTime.DataSource = dt;
-            rptDownTime.DataBind();
-        }
-        else
-        {
-            rptDownTime.DataSource = null;
-            rptDownTime.DataBind();
-        }
-    }
-    private void GetDispatchCount()
-    {
-        DataTable dt = new DataTable();
-
-        using (SqlDataAdapter da = new SqlDataAdapter("SP_DashboardDetails", con))
-        {
-            da.SelectCommand.CommandType = CommandType.StoredProcedure;
-            da.SelectCommand.Parameters.AddWithValue("@SP_Action", "Dispatchedcount");
-
-            da.Fill(dt);
-        }
-
-        if (dt.Rows.Count > 0)
-        {
-            lblDispatchCount.Text =
-                dt.Rows[0]["DispatchedCount"].ToString();
-               
-        }
-        else
-        {
-            lblDispatchCount.Text = "0 / 0";
-        }
-    }
-
-    private void GetRejectedCount()
-    {
-        DataTable dt = new DataTable();
-
-        using (SqlDataAdapter da = new SqlDataAdapter("SP_DashboardDetails", con))
-        {
-            da.SelectCommand.CommandType = CommandType.StoredProcedure;
-            da.SelectCommand.Parameters.AddWithValue("@SP_Action", "Returncount");
-
-            da.Fill(dt);
-        }
-
-        if (dt.Rows.Count > 0)
-        {
-            lblRejectedCount.Text = dt.Rows[0]["ReturnCount"].ToString();
-        }
-        else
-        {
-            lblRejectedCount.Text = "0";
-        }
-    }
-
-    private void GetProductivity()
-    {
-        DataTable dt = new DataTable();
-
-        using (SqlDataAdapter da = new SqlDataAdapter("SP_DashboardDetails", con))
-        {
-            da.SelectCommand.CommandType = CommandType.StoredProcedure;
-            da.SelectCommand.Parameters.AddWithValue("@SP_Action", "TodaysProductivity");
-
-            da.Fill(dt);
-        }
-
-        if (dt.Rows.Count > 0)
-        {
-            rptProductivity.DataSource = dt;
-            rptProductivity.DataBind();
-        }
-    }
-
-    private void GetOrderCount()
-    {
-        DataTable dt = new DataTable();
-
-        using (SqlDataAdapter da = new SqlDataAdapter("SP_DashboardDetails", con))
-        {
-            da.SelectCommand.CommandType = CommandType.StoredProcedure;
-            da.SelectCommand.Parameters.AddWithValue("@SP_Action", "OrderCount");
-
-            da.Fill(dt);
-        }
-
-        if (dt.Rows.Count > 0)
-        {
-            lblNewOrders.Text = dt.Rows[0]["NewOrders"].ToString();
-            lblPendingOrders.Text = dt.Rows[0]["PendingOrders"].ToString();
-            lblOverDueOrders.Text = dt.Rows[0]["OverDueOrders"].ToString();
-        }
-        else
-        {
-            lblNewOrders.Text = "0";
-            lblPendingOrders.Text = "0";
-            lblOverDueOrders.Text = "0";
-        }
-    }
-
 
     [WebMethod]
     public static List<Dictionary<string, object>> GetNotifications()
@@ -313,29 +143,46 @@ public partial class Dashboard : System.Web.UI.Page
         return notifications;
     }
 
-
     public static string encrypt(string encryptString)
     {
-        string EncryptionKey = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        string encryptionKey = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         byte[] clearBytes = Encoding.Unicode.GetBytes(encryptString);
+
         using (Aes encryptor = Aes.Create())
         {
-            Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes(EncryptionKey, new byte[] {
-            0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76
-        });
-            encryptor.Key = pdb.GetBytes(32);
-            encryptor.IV = pdb.GetBytes(16);
-            using (MemoryStream ms = new MemoryStream())
-            {
-                using (CryptoStream cs = new CryptoStream(ms, encryptor.CreateEncryptor(), CryptoStreamMode.Write))
+            using (Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes(
+                encryptionKey,
+                new byte[]
                 {
-                    cs.Write(clearBytes, 0, clearBytes.Length);
-                    cs.Close();
+                0x49, 0x76, 0x61, 0x6E,
+                0x20, 0x4D, 0x65, 0x64,
+                0x76, 0x65, 0x64, 0x65,
+                0x76
+                }))
+            {
+                encryptor.Key = pdb.GetBytes(32);
+                encryptor.IV = pdb.GetBytes(16);
+
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    using (CryptoStream cs = new CryptoStream(ms, encryptor.CreateEncryptor(), CryptoStreamMode.Write))
+                    {
+                        cs.Write(clearBytes, 0, clearBytes.Length);
+                        cs.FlushFinalBlock();
+                    }
+
+                    // Convert to Base64
+                    string encrypted = Convert.ToBase64String(ms.ToArray());
+
+                    // Make URL-safe
+                    encrypted = encrypted.Replace("+", "-")
+                                         .Replace("/", "_")
+                                         .Replace("=", "");
+
+                    return encrypted;
                 }
-                encryptString = Convert.ToBase64String(ms.ToArray());
             }
         }
-        return encryptString;
     }
 }
 

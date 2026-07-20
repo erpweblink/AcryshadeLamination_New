@@ -384,7 +384,7 @@
                               accept="image/*"
                               style="display: none;" />
 
-                              <input type="hidden" name="ProdImageName[]" class="file-input" />
+                              <input type="hidden" name="ProdImageName[]" class="product-file-input" />
                       </div>
 
 
@@ -726,7 +726,7 @@
                     'accept = "image/*" ' +
                     'style = "display: none;" /> ' +
                     '</div > ' +
-                    ' <input type="hidden" value="' + item.UploadedImage + '" name="ProdImageName[]" class="file-input" />' +
+                    ' <input type="hidden" value="' + item.UploadedImage + '" name="ProdImageName[]" class="product-file-input" />' +
 
                     '<div class="error-msg productimage-error text-danger"' +
                     'style = "font-size: 12px;" > ' +
@@ -743,7 +743,7 @@
                 var lastRow = $('#tblRawMaterial tbody tr:last')[0];
                 toggleSize(lastRow.querySelector('.typo'));
             });
-
+            restoreProductImages();
             updateSerialNumbers();
         }
 
@@ -876,7 +876,7 @@
                     'accept = "image/*" ' +
                     'style = "display: none;" /> ' +
                     '</div > ' +
-                    ' <input type="hidden" value="' + item.ImagePathName + '" name="ProdImageName[]" class="file-input" />' +
+                    ' <input type="hidden" value="' + item.ImagePathName + '" name="ProdImageName[]" class="product-file-input" />' +
 
                     '<div class="error-msg productimage-error text-danger"' +
                     'style = "font-size: 12px;" > ' +
@@ -893,7 +893,7 @@
                 var lastRow = $('#tblRawMaterial tbody tr:last')[0];
                 toggleSize(lastRow.querySelector('.typo'));
             });
-
+            restoreProductImages();
             updateSerialNumbers();
         }
 
@@ -1018,7 +1018,7 @@
                     'accept = "image/*" ' +
                     'style = "display: none;" /> ' +
                     '</div > ' +
-                    ' <input type="hidden" value="' + item.ImagePathName + '" name="ProdImageName[]" class="file-input" />' +
+                    ' <input type="hidden" value="' + item.ImagePathName + '" name="ProdImageName[]" class="product-file-input" />' +
 
                     '<div class="error-msg productimage-error text-danger"' +
                     'style = "font-size: 12px;" > ' +
@@ -1398,7 +1398,7 @@
                                                 <i class="bi bi-camera"></i>
                                             </a>
                                             <input type="file" name="ProductImage[]" class="file-input" accept="image/*" style="display: none;" />
-                                            <input type="hidden" name="ProdImageName[]" class="file-input" />
+                                            <input type="hidden" name="ProdImageName[]" class="product-file-input" />
                                         </div>
 
                                         <div class="error-msg productimage-error text-danger"
