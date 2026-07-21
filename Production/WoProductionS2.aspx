@@ -190,6 +190,7 @@
         }
 
         function loadOperatorDetails() {
+            debugger;
             $.ajax({
                 type: "POST",
                 url: "WoProductionS2.aspx/GetOperatorDetails",
@@ -197,7 +198,7 @@
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (response) {
-
+                    debugger;
                     var role = response.d.Role;
                     operatorData = JSON.parse(response.d.Data);
 
@@ -218,7 +219,14 @@
 
                             machineChanged(currentMachineId);
                         }
+                        else {
 
+                            $("#woContainer").html(
+                                "<div class='alert alert-info mb-0'>You are not assigned to this Stage.</div>"
+                            );
+
+                            return;
+                        }
                     } else {
                         $("#ddlMachine").prop("disabled", false);
                         loadMachine(); // admin full list
@@ -571,7 +579,7 @@
             $("#woContainer").html(html);
         }
 
-        function toggleDetails(id,btn) {
+        function toggleDetails(id, btn) {
 
             var row = $("#detailRow_" + id);
 

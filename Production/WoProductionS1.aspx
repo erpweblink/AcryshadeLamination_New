@@ -218,6 +218,14 @@
 
                             machineChanged(currentMachineId);
                         }
+                        else {
+
+                            $("#woContainer").html(
+                                "<div class='alert alert-info mb-0'>You are not assigned to this Stage.</div>"
+                            );
+
+                            return;
+                        }
 
                     } else {
                         $("#ddlMachine").prop("disabled", false);
