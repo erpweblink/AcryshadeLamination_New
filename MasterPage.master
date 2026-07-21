@@ -182,8 +182,7 @@
                             <span class="nav-text">Scheduling/Allotment</span>
                         </a>
 
-                        <a href="/Production/WOProductionS1.aspx" class="nav-link sub-link" id="WOProdTab" runat="server" title="🏭 Production Stage 1"
->
+                        <a href="/Production/WOProductionS1.aspx" class="nav-link sub-link" id="WOProdTab" runat="server" title="🏭 Production Stage 1">
                             <span class="nav-icon">
                                 <i class="bi bi-building-gear"></i>
                             </span>
@@ -304,7 +303,7 @@
 
                                 <span id="divAvatar" runat="server" class="avatar-circle">A</span>
 
-                                <span id="spnUserName" runat="server" class="profile-name d-none d-sm-inline">Admin
+                                <span id="spnUserName" runat="server" class="profile-name d-none d-sm-inline" style="padding: 5px;">Admin
           </span>
 
                             </button>
