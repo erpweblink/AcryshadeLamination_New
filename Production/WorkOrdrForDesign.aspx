@@ -87,7 +87,7 @@
                     <div class="row align-items-end">
                         <div class="col-md-3">
                             <asp:Label ID="Label1" runat="server" Font-Bold="true" CssClass="form-label">Search:</asp:Label>
-                            <asp:TextBox ID="txtcompanyname" CssClass="form-control" runat="server" Width="100%"></asp:TextBox>
+                            <asp:TextBox ID="txtcompanyname" CssClass="form-control" Font-Bold="true" runat="server" Width="100%"></asp:TextBox>
                             <%--  <asp:AutoCompleteExtender ID="AutoCompleteExtender1" runat="server" CompletionListCssClass="completionList"
                                 CompletionListHighlightedItemCssClass="itemHighlighted" CompletionListItemCssClass="listItem"
                                 CompletionInterval="10" MinimumPrefixLength="1" ServiceMethod="GetCompanyList"
@@ -106,10 +106,17 @@
                         </div>
                         <div class="col-md-7 d-flex justify-content-end">
                             <div style="width: 120px;">
-                                <asp:DropDownList ID="ddlPageSize" runat="server" CssClass="form-control" AutoPostBack="true" OnSelectedIndexChanged="ddlPageSize_SelectedIndexChanged">
+                                <asp:DropDownList ID="ddlPageSize" runat="server" CssClass="form-control" AutoPostBack="true" Font-Bold="true" OnSelectedIndexChanged="ddlPageSize_SelectedIndexChanged">
                                     <asp:ListItem Text="10" Value="10" Selected="True" />
                                     <asp:ListItem Text="50" Value="50" />
                                     <asp:ListItem Text="All" Value="0" />
+                                </asp:DropDownList>
+                            </div>&nbsp;&nbsp;
+                            <div style="width: 150px;">
+                                <asp:DropDownList ID="ddlWOStatus" runat="server" CssClass="form-control" AutoPostBack="true" Font-Bold="true" OnSelectedIndexChanged="ddlPageSize_SelectedIndexChanged">
+                                    <asp:ListItem Text="Assigned" Value="Assigned" Selected="True" />
+                                    <asp:ListItem Text="Completed" Value="Completed" />
+                                    <asp:ListItem Text="All" Value="" />
                                 </asp:DropDownList>
                             </div>
                         </div>
@@ -219,22 +226,36 @@
                                              %>'>
                                              <i class="bi bi-x-lg"></i>
                                         </asp:LinkButton>
+                                        &nbsp;&nbsp;
+                                        <asp:LinkButton ID="btRevoke" runat="server"
+                                            ToolTip="Revoke Design"
+                                            CommandName="DisRevoke"
+                                            CommandArgument='<%# Eval("ID") %>'
+                                            CssClass="btn btn-outline-primary btn-sm"
+                                            Visible='<%#
+                                                 (Convert.ToBoolean(Eval("isdesignapproved")) && !Convert.ToBoolean(Eval("ProductionCheck")))
+                                             %>'>
+                                             Revoke
+                                        </asp:LinkButton>
 
                                         <asp:Label ID="lblStatus"
                                             runat="server"
                                             Font-Bold="true"
                                             Visible='<%#
                                                  Convert.ToBoolean(Eval("CancelStatus")) ||
-                                                 Convert.ToBoolean(Eval("HoldStatus")) 
+                                                 Convert.ToBoolean(Eval("HoldStatus")) ||
+                                                 Convert.ToBoolean(Eval("ProductionCheck"))
                                              %>'
                                             Text='<%#
                                                  Convert.ToBoolean(Eval("CancelStatus")) ? "Canceled" :
                                                  Convert.ToBoolean(Eval("HoldStatus")) ? "On Hold" :
+                                                 Convert.ToBoolean(Eval("ProductionCheck")) ? "In Production" :
                                                  "Not Approved"
                                              %>'
                                             ForeColor='<%#
                                                  Convert.ToBoolean(Eval("CancelStatus")) ? System.Drawing.Color.Red :
                                                  Convert.ToBoolean(Eval("HoldStatus")) ? System.Drawing.Color.Orange :
+                                                 Convert.ToBoolean(Eval("ProductionCheck")) ? System.Drawing.Color.BlueViolet :
                                                  System.Drawing.Color.Green
                                              %>'>
                                         </asp:Label>

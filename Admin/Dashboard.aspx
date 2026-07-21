@@ -179,12 +179,28 @@
             box-shadow: 9px 7px 6px rgb(27 184 234);
         }
 
-            .total-down-time span,
-            .total-productivity span {
-                font-size: 18px;
-                font-weight: 700;
-                color: #fd0101;
-            }
+        .total-orders {
+            margin-top: 15px;
+            padding: 12px 16px;
+            background: #18b6634a;
+            border-left: 5px solid #18b663;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #000000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 9px 7px 6px rgb(15 171 89);
+        }
+
+        .total-down-time span,
+        .total-productivity span,
+        .total-ordersy span {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fd0101;
+        }
 
         .mc-back-color {
             color: #0c0b0b;
@@ -354,6 +370,8 @@
             $("#lblNewOrders").text(item.NewOrders);
             $("#lblPendingOrders").text(item.PendingOrders);
             $("#lblOverDueOrders").text(item.OverDueOrders);
+
+            $("#lblTotalOrders").text(parseInt(item.NewOrders || 0) + parseInt(item.PendingOrders || 0) + parseInt(item.OverDueOrders || 0));
         }
 
         function bindRejected(data) {
@@ -696,6 +714,10 @@
                                        <span id="lblOverDueOrders">0</span>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="total-orders">
+                                Total Orders:
+                                <span id="lblTotalOrders"></span>
                             </div>
                         </div>
                     </div>

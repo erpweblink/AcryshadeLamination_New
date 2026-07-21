@@ -105,10 +105,17 @@
                         </div>
                         <div class="col-md-7 d-flex justify-content-end">
                             <div style="width: 120px;">
-                                <asp:DropDownList ID="ddlPageSize" runat="server" CssClass="form-control" AutoPostBack="true" OnSelectedIndexChanged="ddlPageSize_SelectedIndexChanged">
+                                <asp:DropDownList ID="ddlPageSize" runat="server" CssClass="form-control" AutoPostBack="true" Font-Bold="true" OnSelectedIndexChanged="ddlPageSize_SelectedIndexChanged">
                                     <asp:ListItem Text="10" Value="10" Selected="True" />
                                     <asp:ListItem Text="50" Value="50" />
                                     <asp:ListItem Text="All" Value="0" />
+                                </asp:DropDownList>
+                            </div>
+                            <div style="width: 150px;">
+                                <asp:DropDownList ID="ddlWOStatus" runat="server" CssClass="form-control" AutoPostBack="true" Font-Bold="true" OnSelectedIndexChanged="ddlPageSize_SelectedIndexChanged">
+                                    <asp:ListItem Text="Not Approved" Value="Assigned" Selected="True" />
+                                    <asp:ListItem Text="Approved" Value="Completed" />
+                                    <asp:ListItem Text="All" Value="" />
                                 </asp:DropDownList>
                             </div>
                         </div>
@@ -132,13 +139,13 @@
                                                             <asp:Label ID="lblsnos" runat="server" Text='<%# Container.DataItemIndex+1 %>'></asp:Label>
                                                         </ItemTemplate>
                                                     </asp:TemplateField>
-                                                    <asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="White"  DataField="ProductName" HeaderText="Product Name" />
-                                                    <asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="White"  DataField="Description" HeaderText="Description" />
-                                                    <asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="White"  DataField="Size" HeaderText="Size" />
-                                                    <asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="White"  DataField="Unit" HeaderText="Unit" />
-                                                    <asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="White"  DataField="Qty" HeaderText="Qty" />
-                                                    <asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="White"  DataField="SqFeet" HeaderText="Sq Feet" />
-                                                    <asp:TemplateField HeaderText="Custom Image" HeaderStyle-ForeColor="White"  ItemStyle-HorizontalAlign="Center">
+                                                    <asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="White" DataField="ProductName" HeaderText="Product Name" />
+                                                    <asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="White" DataField="Description" HeaderText="Description" />
+                                                    <asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="White" DataField="Size" HeaderText="Size" />
+                                                    <asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="White" DataField="Unit" HeaderText="Unit" />
+                                                    <asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="White" DataField="Qty" HeaderText="Qty" />
+                                                    <asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="White" DataField="SqFeet" HeaderText="Sq Feet" />
+                                                    <asp:TemplateField HeaderText="Custom Image" HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center">
                                                         <ItemTemplate>
                                                             <div class="image-hover-container">
                                                                 <asp:Image ID="imG" runat="server"

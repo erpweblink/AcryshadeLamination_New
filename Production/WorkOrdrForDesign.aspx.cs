@@ -1,10 +1,8 @@
-﻿using AjaxControlToolkit;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.IO;
 using System.Web.Script.Services;
 using System.Web.Services;
 using System.Web.UI.WebControls;
@@ -81,6 +79,23 @@ public partial class WorkOrdrForDesign : System.Web.UI.Page
             Session["url"] = "/Production/WorkOrdrForDesign.aspx";
             Response.Redirect("/Alerts.aspx");
         }
+        if (e.CommandName == "DisRevoke")
+        {
+            SqlCommand Cmd = new SqlCommand("SP_WorkOrderMaster", con);
+            Cmd.CommandType = CommandType.StoredProcedure;
+            Cmd.Parameters.AddWithValue("@SP_Action", "DisApprove");
+            Cmd.Parameters.AddWithValue("@Id", e.CommandArgument.ToString());
+            Cmd.Parameters.Add("@Result", SqlDbType.Int).Direction = ParameterDirection.Output;
+            con.Open();
+            Cmd.ExecuteNonQuery();
+            con.Close();
+
+            Session["message"] = "Work order Revoked successfully.";
+            Session["icon"] = "success";
+            Session["time"] = "2000";
+            Session["url"] = "/Production/WorkOrdrForDesign.aspx";
+            Response.Redirect("/Alerts.aspx");
+        }
         if (e.CommandName == "RowPO")
         {
             string ID = e.CommandArgument.ToString();
@@ -118,7 +133,7 @@ public partial class WorkOrdrForDesign : System.Web.UI.Page
         SqlDataAdapter cmd = new SqlDataAdapter("SP_WorkOrderMaster", con);
         cmd.SelectCommand.CommandType = CommandType.StoredProcedure;
         cmd.SelectCommand.Parameters.AddWithValue("@SP_Action", "WoHdrList");
-        cmd.SelectCommand.Parameters.AddWithValue("@ActionBy", "DesignerWo");
+        cmd.SelectCommand.Parameters.AddWithValue("@ActionBy", ddlWOStatus.SelectedValue);
         cmd.SelectCommand.Parameters.AddWithValue("@Dealer", txtcompanyname.Text);
         cmd.SelectCommand.Parameters.AddWithValue("@ShowRecords", ddlPageSize.SelectedValue);
         cmd.SelectCommand.Parameters.Add("@Result", SqlDbType.Int).Direction = ParameterDirection.Output;
@@ -129,7 +144,7 @@ public partial class WorkOrdrForDesign : System.Web.UI.Page
 
     protected void btnrefresh_Click(object sender, EventArgs e)
     {
-        Response.Redirect("WorkOrderList.aspx");
+        Response.Redirect("WorkOrdrForDesign.aspx");
     }
 
     [ScriptMethod()]
@@ -168,7 +183,6 @@ public partial class WorkOrdrForDesign : System.Web.UI.Page
             }
         }
     }
-
 
     protected void ddlPageSize_SelectedIndexChanged(object sender, EventArgs e)
     {
