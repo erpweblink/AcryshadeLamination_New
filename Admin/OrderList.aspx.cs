@@ -202,7 +202,10 @@ public partial class OrderList : System.Web.UI.Page
 
                     HttpPostedFile file = null;
 
-                    if (fileIndex < files.Count)
+                    bool isCustom = !string.IsNullOrWhiteSpace(Type[i]) &&
+                        Type[i].Trim().Equals("Custom", StringComparison.OrdinalIgnoreCase);
+
+                    if (isCustom && fileIndex < files.Count)
                     {
                         file = files[fileIndex];
                         fileIndex++;
@@ -222,7 +225,7 @@ public partial class OrderList : System.Web.UI.Page
 
                         string fullPath = Path.Combine(folderPath, fileName);
 
-                        SaveCompressedImage(file, fullPath, quality: 60, maxWidth: 800);
+                       SaveCompressedImage(file, fullPath, quality: 60, maxWidth: 800);
 
                         cmd.Parameters.AddWithValue(
                             "@UploadedImage",
@@ -252,7 +255,7 @@ public partial class OrderList : System.Web.UI.Page
             Session["message"] = "Order has been Placed.";
             Session["icon"] = "success";
             Session["time"] = "2000";
-            Session["url"] = "/Admin/PlaceOrder.aspx";
+            Session["url"] = "/Admin/OrderHistory.aspx";
 
             Response.Redirect("/Alerts.aspx");
         }

@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
+using System.Linq;
+using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
-public partial class ProductionTrackingReports : System.Web.UI.Page
+public partial class Reports_MachineBreakdown : System.Web.UI.Page
 {
     SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["constr"].ConnectionString);
     CommonCls objcls = new CommonCls();
@@ -42,38 +45,17 @@ public partial class ProductionTrackingReports : System.Web.UI.Page
         }
     }
 
-    private void FillGrid()
-    {
-        DataTable dt = new DataTable();
-        SqlDataAdapter cmd = new SqlDataAdapter("SP_Reports", con);
-        cmd.SelectCommand.CommandType = CommandType.StoredProcedure;
-        cmd.SelectCommand.Parameters.AddWithValue("@SP_Action", "ProductionsTrackingReports");
-        cmd.Fill(dt);
-        GVdetails.DataSource = dt;
-        GVdetails.DataBind();
-    }
-
-
-    protected void GVdetails_RowDataBound(object sender, GridViewRowEventArgs e)
-    {
-
-    }
-
-    protected void GVdetails_RowCommand(object sender, GridViewCommandEventArgs e)
-    {
-
-    }
 
     protected void btnExportExcel_Click(object sender, EventArgs e)
     {
-        GVdetails.AllowPaging = false;
+        GvMachineBreak.AllowPaging = false;
 
         FillGrid(); // rebind data
 
         Response.Clear();
         Response.Buffer = true;
         Response.AddHeader("content-disposition",
-            "attachment;filename=ProductionTrackingReport.xls");
+            "attachment;filename=MachineBreakDownReport.xls");
         Response.Charset = "";
         Response.ContentType = "application/vnd.ms-excel";
 
@@ -81,26 +63,55 @@ public partial class ProductionTrackingReports : System.Web.UI.Page
         {
             HtmlTextWriter hw = new HtmlTextWriter(sw);
 
-            if (GVdetails.HeaderRow != null)
+            if (GvMachineBreak.HeaderRow != null)
             {
-                GVdetails.HeaderRow.BackColor = System.Drawing.Color.White;
+                GvMachineBreak.HeaderRow.BackColor = System.Drawing.Color.White;
 
-                foreach (TableCell cell in GVdetails.HeaderRow.Cells)
+                foreach (TableCell cell in GvMachineBreak.HeaderRow.Cells)
                 {
-                    cell.BackColor = GVdetails.HeaderStyle.BackColor;
+                    cell.BackColor = GvMachineBreak.HeaderStyle.BackColor;
                 }
             }
 
-            foreach (GridViewRow row in GVdetails.Rows)
+            foreach (GridViewRow row in GvMachineBreak.Rows)
             {
                 row.BackColor = System.Drawing.Color.White;
             }
 
-            GVdetails.RenderControl(hw);
+            GvMachineBreak.RenderControl(hw);
 
             Response.Write(sw.ToString());
             Response.Flush();
             Response.End();
+        }
+    }
+
+    private void FillGrid()
+    {
+        try
+        {
+            using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["constr"].ConnectionString))
+            {
+                using (SqlCommand cmd = new SqlCommand("SP_Reports", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@SP_Action", "GetOTmachine");
+
+                    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                    {
+                        DataTable dt = new DataTable();
+                        da.Fill(dt);
+
+                        GvMachineBreak .DataSource = dt;
+                        GvMachineBreak.DataBind();
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle error
+            Response.Write(ex.Message);
         }
     }
 

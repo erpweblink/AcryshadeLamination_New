@@ -436,7 +436,7 @@
             var orderId = $(this).data('orderid');
 
             window.location.href =
-                'Notifications.aspx?OrderID=' + orderId;
+                '/Admin/Notifications.aspx?OrderID=' + orderId;
         });
 
         document.addEventListener('DOMContentLoaded', function () {

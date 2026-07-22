@@ -3,19 +3,31 @@
 <%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="asp" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="Server">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.6.9/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.6.9/dist/sweetalert2.min.js"></script>
     <style type="text/css">
         .order-headerss {
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 10px;
-            flex-wrap: wrap; /* allows responsiveness */
+            flex-wrap: wrap;
         }
 
             /* remove default margin issues */
             .order-headerss h2 {
                 margin: 0;
                 white-space: nowrap;
+            }
+
+        .order-subrow {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+            .order-subrow select {
+                max-width: 220px;
             }
 
         /* optional styling for link h2 */
@@ -28,11 +40,27 @@
         @media (max-width: 600px) {
             .order-headerss {
                 flex-direction: column;
-                align-items: flex-start;
+                align-items: stretch; /* was flex-start */
+                gap: 12px;
             }
 
                 .order-headerss h2 {
                     white-space: normal;
+                }
+
+            .order-subrow {
+                width: 100%;
+                justify-content: space-between;
+                gap: 10px;
+            }
+
+                .order-subrow select {
+                    max-width: 60%;
+                    flex: 1;
+                }
+
+                .order-subrow h2 {
+                    margin: 0;
                 }
         }
 
@@ -90,6 +118,17 @@
             border-radius: 40px;
             white-space: nowrap;
         }
+
+
+        .status-outfordelivery {
+            cursor: pointer;
+            transition: .2s;
+        }
+
+            .status-outfordelivery:hover {
+                transform: scale(1.05);
+                box-shadow: 0 0 8px rgba(34,197,94,.4);
+            }
 
         .status-placed {
             background: #F59E0B;
@@ -328,6 +367,7 @@
         }
     </style>
     <script type="text/javascript">
+        let allOrdersData = [];
         $(document).ready(function () {
             loadOrders();
         });
@@ -352,7 +392,18 @@
                 dataType: "json",
                 success: function (response) {
                     let orders = response.d;
-                    renderOrders(orders);
+
+                    allOrdersData = orders || [];
+
+                    if (allOrdersData.length > 0) {
+                        $("#ddlStatusFilter").show();
+                        applyStatusColor($("#ddlStatusFilter").val());
+                    } else {
+                        $("#ddlStatusFilter").hide();
+                        $("#ddlStatusFilter").val(""); // reset filter if list becomes empty
+                    }
+
+                    renderOrders(allOrdersData);
                 },
                 error: function (err) {
                     console.log(err);
@@ -360,28 +411,62 @@
             });
         }
 
+        const statusColorMap = {
+            "": { bg: "#fff", text: "#333" },
+            "Order Placed": { bg: "#F59E0B", text: "#F59E0B" },
+            "Order Hold": { bg: "#6B7280", text: "#6B7280" },
+            "Order Approved": { bg: "#2563EB", text: "#2563EB" },
+            "Design Approved": { bg: "#8B5CF6", text: "#8B5CF6" },
+            "Production Started": { bg: "#F97316", text: "#F97316" },
+            "Order Packed": { bg: "#06B6D4", text: "#06B6D4" },
+            "Order Dispatched": { bg: "#14B8A6", text: "#14B8A6" },
+            "Out for Delivery": { bg: "#22C55E", text: "#22C55E" },
+            "Delivered": { bg: "#22C55E", text: "#22C55E" },
+            "Order Rejected": { bg: "#DC2626", text: "#DC2626" },
+            "Order Canceled": { bg: "#DC2626", text: "#DC2626" }
+        };
+
+        function applyStatusColor(status) {
+            let colors = statusColorMap[status] || statusColorMap[""];
+            $("#ddlStatusFilter").css({
+                "color": colors.text,
+                "border-color": colors.bg
+            });
+        }
+
+        function onStatusFilterChange() {
+            let selectedStatus = $("#ddlStatusFilter").val();
+
+            applyStatusColor(selectedStatus);
+
+            if (selectedStatus === "") {
+                renderOrders(allOrdersData);
+            } else {
+                let filtered = allOrdersData.filter(o => o.OrderStatus === selectedStatus);
+                renderOrders(filtered);
+            }
+        }
+
         function renderOrders(orders) {
 
             let html = "";
 
             if (!orders || orders.length === 0) {
-                html = `
+
+                let isFiltered = $("#ddlStatusFilter").val() !== "";
+
+                html = isFiltered ? `
                     <div class="text-center py-5">
-                        <i class="bi bi-bag-x-fill"
-                           style="font-size:70px;color:#c0c0c0;"></i>
-
-                        <h4 class="mt-3 text-secondary">
-                            No Orders Yet
-                        </h4>
-
-                        <p class="text-muted">
-                            You haven't placed any orders yet.
-                        </p>
-
-                        <a href="/Admin/PlaceOrder.aspx"
-                           class="btn btn-primary mt-2">
-                            Place Your First Order
-                        </a>
+                        <i class="bi bi-filter-circle" style="font-size:70px;color:#c0c0c0;"></i>
+                        <h4 class="mt-3 text-secondary">No Orders Found</h4>
+                        <p class="text-muted">No orders match this status.</p>
+                    </div>
+                ` : `
+                    <div class="text-center py-5">
+                        <i class="bi bi-bag-x-fill" style="font-size:70px;color:#c0c0c0;"></i>
+                        <h4 class="mt-3 text-secondary">No Orders Yet</h4>
+                        <p class="text-muted">You haven't placed any orders yet.</p>
+                        <a href="/Admin/PlaceOrder.aspx" class="btn btn-primary mt-2">Place Your First Order</a>
                     </div>
                 `;
 
@@ -429,7 +514,7 @@
                     progress = 90;
                     progressColor = "#14B8A6";      // Teal
                 }
-                else if (o.OrderStatus === "Out for Delivery") {
+                else if (o.OrderStatus === "Out for Delivery" || o.OrderStatus === "Delivered") {
                     statusClass = "status-outfordelivery";
                     progress = 100;
                     progressColor = "#22C55E";      // Green
@@ -450,10 +535,10 @@
                         <br/>
                     `;
                 }
-
                 html += `
                     <div class="order-card" style="position:relative;">
-                     ${o.OrderStatus !== "Order Rejected" && o.OrderStatus !== "Order Canceled" ? `
+                     ${o.OrderStatus === "Order Placed" || o.OrderStatus === "Order Approved"
+                        || o.OrderStatus === "Design Approved" ? `
                      <div class="position-absolute d-flex gap-2"
                              style="top:10px; right:10px; z-index:10;">
 
@@ -482,21 +567,52 @@
                             
                             <div class="order-right">
          
-                                <div class="order-status ${statusClass}">
+                               <div class="order-status ${statusClass}"
+                                    title="${o.OrderStatus !== 'Order Rejected' && o.OrderStatus !== 'Order Canceled'
+                        ? 'Click when you receive the order'
+                        : ''}"
+                                    ${o.OrderStatus === "Out for Delivery"
+                        ? `style="cursor:pointer;"
+                                                       onclick="event.stopPropagation(); confirmDelivery('${o.ID}','${o.WoID}')"`
+                        : ""}>
                                     ${o.OrderStatus}
                                 </div>
 
-                                <a href="${o.AttachedPath ? '/Content/' + o.AttachedPath.replace('~/', '') : '#'}"
-                                       target="_blank"
-                                       onclick="event.stopPropagation();"
-                                       title="${o.AttachedPath ? 'Attached Invoice' : 'No Invoice Available'}"
-                                       class="pdf-link">
+                               <a href="${o.AttachedPath ? '/Content/' + o.AttachedPath.replace('~/', '') : 'javascript:void(0)'}"
+                                   ${o.AttachedPath ? 'target="_blank"' : ''}
+                                   onclick="${o.AttachedPath ? 'event.stopPropagation();' : 'return false;'}"
+                                   title="${o.AttachedPath ? 'Attached Order' : 'No Order Available'}"
+                                   class="pdf-link"
+                                   style="${!o.AttachedPath ? 'pointer-events:none;cursor:not-allowed;opacity:.7;' : ''}">
+                                    <i class="bi bi-file-earmark-pdf-fill"
+                                       style="color:${o.AttachedPath ? '#0d6efd' : '#dc3545'}">
+                                    </i>
+                                </a>
 
-                                        <i class="bi bi-file-earmark-pdf-fill"
-                                           style="color:${o.AttachedPath ? '#0d6efd' : '#888'}">
-                                        </i>
+                                ${(o.TallyRefNo && o.TallyRefNo.trim() !== "") ? `
 
-                                    </a>
+                                <a href="${o.Invoicepath ? '/Content/' + o.Invoicepath.replace('~/', '') : 'javascript:void(0)'}"
+                                   ${o.Invoicepath ? 'target="_blank"' : ''}
+                                   onclick="${o.Invoicepath ? 'event.stopPropagation();' : 'return false;'}"
+                                   title="${o.Invoicepath ? 'Invoice' : 'No Invoice Available'}"
+                                   class="pdf-link"
+                                   style="${!o.Invoicepath ? 'pointer-events:none;cursor:not-allowed;opacity:.7;' : ''}">
+                                    <i class="bi bi-receipt"
+                                       style="color:${o.Invoicepath ? '#0d6efd' : '#dc3545'}"></i>
+                                </a>
+
+                                <a href="${o.Lrpath ? '/Content/' + o.Lrpath.replace('~/', '') : 'javascript:void(0)'}"
+                                   ${o.Lrpath ? 'target="_blank"' : ''}
+                                   onclick="${o.Lrpath ? 'event.stopPropagation();' : 'return false;'}"
+                                   title="${o.Lrpath ? 'LR Copy' : 'No LR Copy Available'}"
+                                   class="pdf-link"
+                                   style="${!o.Lrpath ? 'pointer-events:none;cursor:not-allowed;opacity:.7;' : ''}">
+                                    <i class="bi bi-truck"
+                                       style="color:${o.Lrpath ? '#198754' : '#dc3545'}"></i>
+                                </a>
+
+                                ` : ""
+                    }
 
                                <div class="progress-ring">
 
@@ -585,6 +701,41 @@
             $("#orderList").html(html);
         }
 
+        function confirmDelivery(orderId, woId) {
+
+            Swal.fire({
+                title: "Confirm Delivery",
+                text: "Has this order been delivered to you?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Delivered",
+                cancelButtonText: "No"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "POST",
+                        url: "OrderHistory.aspx/ConfirmDelivery", // Change to your method
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            orderId: orderId,
+                            WorkOId: woId
+                        }),
+                        dataType: "json",
+                        success: function (res) {
+
+                            alert("Thank you for confirming delivery.");
+
+                            // Reload orders
+                            loadOrders(); // Your existing function
+                        },
+                        error: function () {
+                            alert("Something went wrong. Please try again.");
+                        }
+                    });
+                }
+            });
+        }
+
         function holdOrder(orderId, WorkOId) {
 
             if (!confirm("Hold this order?"))
@@ -640,9 +791,30 @@
             <div class="order-container">
                 <div class="order-headerss">
                     <h2 class="fw-bold">My Orders</h2>
-                    <h2 class="product-link">
-                        <a href="/Admin/PlaceOrder.aspx"><i>Product List</i></a>
-                    </h2>
+
+                    <div class="order-subrow">
+                        <select id="ddlStatusFilter"
+                            class="form-select"
+                            style="display: none;"
+                            onchange="onStatusFilterChange()">
+                            <option value="" style="color: #333;">All Orders</option>
+                            <option value="Order Placed" style="color: #F59E0B;">Order Placed</option>
+                            <option value="Order Hold" style="color: #6B7280;">Order Hold</option>
+                            <option value="Order Approved" style="color: #2563EB;">Order Approved</option>
+                            <option value="Design Approved" style="color: #8B5CF6;">Design Approved</option>
+                            <option value="Production Started" style="color: #F97316;">Production Started</option>
+                            <option value="Order Packed" style="color: #06B6D4;">Order Packed</option>
+                            <option value="Order Dispatched" style="color: #14B8A6;">Order Dispatched</option>
+                            <option value="Out for Delivery" style="color: #22C55E;">Out for Delivery</option>
+                            <option value="Delivered" style="color: #22C55E;">Delivered</option>
+                            <option value="Order Rejected" style="color: #DC2626;">Order Rejected</option>
+                            <option value="Order Canceled" style="color: #DC2626;">Order Canceled</option>
+                        </select>
+
+                        <h2 class="product-link">
+                            <a href="/Admin/PlaceOrder.aspx"><i>Product List</i></a>
+                        </h2>
+                    </div>
                 </div>
                 <br />
                 <br />

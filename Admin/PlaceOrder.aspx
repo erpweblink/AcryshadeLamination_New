@@ -93,6 +93,19 @@
             margin-left: auto;
         }
 
+        .error-msg {
+            display: block;
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 3px;
+            min-height: 16px;
+        }
+
+        .input-error {
+            border: 1px solid #dc3545 !important;
+        }
+
+
         /* optional styling for link h2 */
         .product-link a {
             text-decoration: none;
@@ -264,20 +277,18 @@
                 justify-content: space-between;
             }
         }
-
-
     </style>
     <script type="text/javascript">
         let allProducts = [];
-
-        window.onload = function () {
+        document.addEventListener("DOMContentLoaded", function () {
 
             loadCartData();
             loadProducts();
 
-            document.getElementById("txtSearch").addEventListener("keyup", searchProducts);
+            document.getElementById("txtSearch")
+                .addEventListener("keyup", searchProducts);
 
-        };
+        });
 
         function loadCartData() {
 
@@ -357,7 +368,6 @@
         }
 
         function renderCards(products, containerId) {
-
             let html = "";
 
             products.forEach(p => {
@@ -368,31 +378,33 @@
                 html += `
 
                 <div class="product-card">
-                    <img id="img_${p.ID}" 
+                    <img id="img_${containerId}_${p.ID}" 
                         src="${p.ImagenamePath}"
                         onclick="openModal('${p.ImagenamePath}')">
 
-                    <div class="product-name" id="name_${p.ID}">
+                    <div class="product-name" id="name_${containerId}_${p.ID}">
                         ${p.ProductName}
                     </div>
 
-                     <select id="type_${p.ID}" onchange="toggleSize(${p.ID}, '${p.Size}')">
+                     <select id="type_${containerId}_${p.ID}" onchange="toggleSize(this, '${p.Size}')">
                         <option value="Regular" selected>Regular</option>
                         <option value="Custom">Custom</option>
                     </select>
+                    <small id="typeErr_${containerId}_${p.ID}" class="error-msg"></small>
 
-                    <select id="size_${p.ID}" disabled>
+                    <select id="size_${containerId}_${p.ID}" disabled onchange="clearError('size',${p.ID})">
                         <option value="">Select Size</option>
                         <option value="8x2"  ${p.Size === "8x2" ? "selected" : ""}>8x2</option>
                         <option value="8x4"  ${p.Size === "8x4" ? "selected" : ""}>8x4</option>
                     </select>
+                    <small id="sizeErr_${containerId}_${p.ID}" class="error-msg"></small>
 
-                    <input id="qty_${p.ID}" autocomplete="off" placeholder="Quantity" onkeypress="return event.charCode >= 48 && event.charCode <= 57">
-
+                    <input id="qty_${containerId}_${p.ID}" autocomplete="off" placeholder="Quantity" oninput="clearError('qty','${containerId}',${p.ID})" onkeypress="return event.charCode >= 48 && event.charCode <= 57">
+                    <small id="qtyErr_${containerId}_${p.ID}" class="error-msg"></small>
                   
-                    <button
+                    <button type="button"
                         class="btnCart"
-                        onclick="addToCart(${p.ID})">
+                        onclick="return addToCart(this,'${containerId}',${p.ID})">
 
                         Add To Cart
 
@@ -406,16 +418,56 @@
                 .innerHTML = html;
         }
 
-        function toggleSize(id, originalSize) {
+        function reloadProductsFromMemory() {
+            if (allProducts.length > 0) {
+                renderInitial();
+            }
+        }
 
-            const type = document.getElementById(`type_${id}`);
-            const size = document.getElementById(`size_${id}`);
+        function clearError(field, containerId, productId) {
+
+            let err = document.getElementById(
+                field + "Err_" + containerId + "_" + productId
+            );
+
+            let ctrl = document.getElementById(
+                field + "_" + containerId + "_" + productId
+            );
+
+            if (err)
+                err.innerHTML = "";
+
+            if (ctrl)
+                ctrl.classList.remove("input-error");
+        }
+
+        function toggleSize(ctrl, originalSize) {
+
+            const parts = ctrl.id.split('_');
+
+            const containerId = parts[1];
+            const productId = parts[2];
+
+            const card = ctrl.closest(".product-card");
+
+            const type = card.querySelector(
+                "#type_" + containerId + "_" + productId
+            );
+
+            const size = card.querySelector(
+                "#size_" + containerId + "_" + productId
+            );
+
 
             if (type.value === "Custom") {
+
                 size.disabled = false;
+
             } else {
-                size.value = originalSize;   // Restore original size
+
                 size.disabled = true;
+                size.value = originalSize;
+
             }
         }
 
@@ -428,7 +480,7 @@
                     .trim();
 
             if (text === "") {
-
+                renderInitial();
                 document.getElementById("divTrending").style.display = "block";
                 document.getElementById("divRegular").style.display = "block";
                 document.getElementById("divSearch").style.display = "none";
@@ -453,39 +505,93 @@
             );
         }
 
-        function addToCart(productId) {
+        function addToCart(btn, containerId, productId) {
 
-            let size = document.getElementById("size_" + productId).value;
+            const card = btn.closest(".product-card");
 
-            let Textsize = document.getElementById("size_" + productId).options[
-                document.getElementById("size_" + productId).selectedIndex
-            ].text.trim();
+            const typeCtrl = card.querySelector(
+                "#type_" + containerId + "_" + productId
+            );
 
-            let Type = document.getElementById("type_" + productId).options[
-                document.getElementById("type_" + productId).selectedIndex
-            ].text.trim();
+            const sizeCtrl = card.querySelector(
+                "#size_" + containerId + "_" + productId
+            );
 
-            let qty = document.getElementById("qty_" + productId).value;
-            let productName = document.getElementById("name_" + productId).innerText.trim();
-            let imgN = document.getElementById("img_" + productId).src;
-            imgN = "~/" + imgN.split("/Content/")[1];
-            if (size === "") {
-                alert("Select Size");
-                window.location.href = window.location.href;
-                return;
-            }
+            const qtyCtrl = card.querySelector(
+                "#qty_" + containerId + "_" + productId
+            );
+
+            const typeErr = card.querySelector(
+                "#typeErr_" + containerId + "_" + productId
+            );
+
+            const sizeErr = card.querySelector(
+                "#sizeErr_" + containerId + "_" + productId
+            );
+
+            const qtyErr = card.querySelector(
+                "#qtyErr_" + containerId + "_" + productId
+            );
+
+
+            let Type = typeCtrl.value;
+            let size = sizeCtrl.value;
+            let qty = qtyCtrl.value.trim();
+
+
+            // clear errors
+
+            typeErr.innerHTML = "";
+            sizeErr.innerHTML = "";
+            qtyErr.innerHTML = "";
+
+            typeCtrl.classList.remove("input-error");
+            sizeCtrl.classList.remove("input-error");
+            qtyCtrl.classList.remove("input-error");
+
+
+            let valid = true;
+
 
             if (Type === "") {
-                alert("Select Type");
-                window.location.href = window.location.href;
-                return;
+                typeErr.innerHTML = "Please select type.";
+                typeCtrl.classList.add("input-error");
+                valid = false;
             }
 
-            if (qty === "" || qty <= 0) {
-                alert("Enter Quantity");
-                window.location.href = window.location.href;
-                return;
+
+            if (size === "") {
+                sizeErr.innerHTML = "Please select size.";
+                sizeCtrl.classList.add("input-error");
+                valid = false;
             }
+
+
+            if (qty === "" || parseInt(qty) <= 0) {
+                qtyErr.innerHTML = "Please enter quantity.";
+                qtyCtrl.classList.add("input-error");
+                valid = false;
+            }
+
+
+            if (!valid) {
+                return false;
+            }
+
+            let productName =
+                card.querySelector(
+                    "#name_" + containerId + "_" + productId
+                ).innerText.trim();
+
+
+            let imgN =
+                card.querySelector(
+                    "#img_" + containerId + "_" + productId
+                ).src;
+
+
+            imgN = "~/" + imgN.split("/Content/")[1];
+
 
             fetch("PlaceOrder.aspx/AddToCart", {
                 method: "POST",
@@ -503,8 +609,19 @@
             })
                 .then(r => r.json())
                 .then(() => {
-                    alert("Added To Cart");
-                    window.location.href = window.location.href;
+
+                    Swal.fire({
+                        icon: "success",
+                        title: "Added To Cart",
+                        timer: 1200,
+                        showConfirmButton: false
+                    });
+
+
+                    qtyCtrl.value = "";
+
+                    loadCartData();
+                    renderInitial();
                 });
         }
 
@@ -546,72 +663,67 @@
     </script>
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
-    <asp:ToolkitScriptManager ID="ToolkitScriptManager1" runat="server"></asp:ToolkitScriptManager>
-    <asp:UpdatePanel ID="UpdatePanel1" runat="server">
-        <ContentTemplate>
-            <div class="header-row">
-                <div>
-                    <h2 class="fw-bold" style="margin: 0; white-space: nowrap;">Product List</h2>
-                    <div style="margin-top: 15px;">
-                        <h6 class="product-link">
-                            <a href="/Admin/OrderHistory.aspx"><i>My Orders</i></a>
-                        </h6>
-                    </div>
-                </div>
-
-                <div class="header-right">
-                    <input type="text"
-                        id="txtSearch"
-                        class="search-box"
-                        autocomplete="off"
-                        placeholder="Search Product..." />
-
-                    <div style="position: relative; display: inline-block; flex-shrink: 0;">
-                        <button type="button" class="btn" onclick="getconfirmation()">
-                            <i class="bi bi-cart" style="font-size: 20px;"></i>
-                        </button>
-                        <span id="cartCount" style="display: none; position: absolute; top: -6px; right: -6px; background: #e53935; color: #fff; font-size: 11px; font-weight: 600; min-width: 18px; height: 18px; border-radius: 50%; align-items: center; justify-content: center; padding: 0 3px;">0</span>
-                    </div>
-                </div>
+    <div class="header-row">
+        <div>
+            <h2 class="fw-bold" style="margin: 0; white-space: nowrap;">Product List</h2>
+            <div style="margin-top: 15px;">
+                <h6 class="product-link">
+                    <a href="/Admin/OrderHistory.aspx"><i>My Orders</i></a>
+                </h6>
             </div>
-            <br />
-            <div id="divTrending">
+        </div>
 
-                <div class="title-line"><i><b>Trending Products</b></i></div>
+        <div class="header-right">
+            <input type="text"
+                id="txtSearch"
+                class="search-box"
+                autocomplete="off"
+                placeholder="Search Product..." />
 
-                <div id="trendingContainer"
-                    class="product-container">
-                </div>
-
+            <div style="position: relative; display: inline-block; flex-shrink: 0;">
+                <button type="button" class="btn" onclick="getconfirmation()">
+                    <i class="bi bi-cart" style="font-size: 20px;"></i>
+                </button>
+                <span id="cartCount" style="display: none; position: absolute; top: -6px; right: -6px; background: #e53935; color: #fff; font-size: 11px; font-weight: 600; min-width: 18px; height: 18px; border-radius: 50%; align-items: center; justify-content: center; padding: 0 3px;">0</span>
             </div>
+        </div>
+    </div>
+    <br />
+    <div id="divTrending">
 
-            <div id="divRegular">
+        <div class="title-line"><i><b>Trending Products</b></i></div>
 
-                <div class="title-line"><i><b>Regular Products</b></i></div>
+        <div id="trendingContainer"
+            class="product-container">
+        </div>
 
-                <div id="regularContainer"
-                    class="product-container">
-                </div>
+    </div>
 
-            </div>
+    <div id="divRegular">
 
-            <div id="divSearch"
-                style="display: none;">
+        <div class="title-line"><i><b>Regular Products</b></i></div>
 
-                <div class="title-line"><i><b>Search Results</b></i></div>
+        <div id="regularContainer"
+            class="product-container">
+        </div>
 
-                <div id="searchContainer"
-                    class="product-container">
-                </div>
+    </div>
 
-            </div>
+    <div id="divSearch"
+        style="display: none;">
 
-            <div id="imgModal"
-                class="img-modal"
-                onclick="closeModal()">
+        <div class="title-line"><i><b>Search Results</b></i></div>
 
-                <img id="modalImg">
-            </div>
-        </ContentTemplate>
-    </asp:UpdatePanel>
+        <div id="searchContainer"
+            class="product-container">
+        </div>
+
+    </div>
+
+    <div id="imgModal"
+        class="img-modal"
+        onclick="closeModal()">
+
+        <img id="modalImg">
+    </div>
 </asp:Content>

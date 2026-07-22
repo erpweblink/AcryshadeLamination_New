@@ -4,6 +4,8 @@
 <%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="asp" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="Server">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.6.9/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.6.9/dist/sweetalert2.min.js"></script>
     <style>
         .card {
             border-radius: 16px;
@@ -176,7 +178,7 @@
                     'class="form-control typ" ' +
                     'value="' + item.ProductType + '" ' +
                     'style="border-radius: 8px; height: 42px; min-width: 20px;" />' +
-                 '</td>';
+                    '</td>';
 
 
                 //Size
@@ -200,7 +202,7 @@
                     'onkeypress="return event.charCode >= 48 && event.charCode <= 57" ' +
                     'oninput="if(this.value==0) this.value=1;" ' +
                     'onblur="if(this.value==\'\' || parseInt(this.value)<=0) this.value=1;" ' +
-                    'onchange="updateSummary()"'+
+                    'onchange="updateSummary()"' +
                     'style="border-radius: 8px; height: 42px; min-width: 20px;" />' +
                     '</td>';
 
@@ -269,6 +271,7 @@
 
                     if (response.d === "Success") {
                         row.remove();
+                        renumberRows();
                         updateSummary();
                     }
                     else {
@@ -281,6 +284,12 @@
                 }
             });
         });
+
+        function renumberRows() {
+            $('#tblRawMaterial tbody tr').each(function (index) {
+                $(this).find('.srno').text(index + 1);
+            });
+        }
 
         function updateSummary() {
 
@@ -298,6 +307,64 @@
             $('#productCount').text(totalProducts);
             $('#summaryProducts').text(totalProducts);
             $('#summaryQty').text(totalQty);
+        }
+
+        function validateBeforeSave() {
+            try {
+                let valid = true;
+                let firstInvalidRow = null;
+
+                $('#tblRawMaterial tbody tr').each(function () {
+                    var row = $(this);
+                    var type = row.find('.typ').val();
+
+                    row.find('.upload-btn').removeClass('btn-outline-danger').addClass('btn-outline-primary');
+                    row.css('background-color', '');
+
+                    if (type === 'Custom') {
+                        var fileInput = row.find('.file-input')[0];
+                        var hasNewFile = fileInput && fileInput.files && fileInput.files.length > 0;
+
+                        if (!hasNewFile) {
+                            valid = false;
+                            row.find('.upload-btn').removeClass('btn-outline-primary').addClass('btn-outline-danger');
+                            row.css('background-color', '#ffe6e6');
+
+                            if (!firstInvalidRow) {
+                                firstInvalidRow = row;
+                            }
+                        }
+                    }
+                });
+
+                if (!valid) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Image Required',
+                            text: 'Please upload an image for every custom product before placing the order.'
+                        });
+                    } else {
+                        alert('Please upload an image for every custom product before placing the order.');
+                    }
+
+                    if (firstInvalidRow) {
+                        $('html, body').animate({
+                            scrollTop: firstInvalidRow.offset().top - 120
+                        }, 400);
+                    }
+
+                    return false;
+                }
+
+                showLoader();
+                return true;
+
+            } catch (err) {
+                console.error('Validation error:', err);
+                alert('Something went wrong validating the order. Please try again.');
+                return false;
+            }
         }
     </script>
 </asp:Content>
@@ -326,13 +393,15 @@
 
                                 <p class="text-muted mb-0">
                                     Review products, upload custom products and confirm your order.
+                               
                                 </p>
                                 <a class="product-link" href="/Admin/PlaceOrder.aspx"><i>Back to Products </i></a>
                             </div>
 
                             <div>
                                 <span class="badge bg-primary fs-6 p-3">Total Products :
-                                 <span id="productCount">0</span>
+                                
+                                    <span id="productCount">0</span>
                                 </span>
 
                             </div>
@@ -376,22 +445,21 @@
                                 <div class="alert alert-info">
                                     <i class="bi bi-info-circle"></i>
                                     Please verify all artwork, sizes and quantities before submitting the order.
+                               
                                 </div>
                                 <div class="d-grid">
                                     <asp:LinkButton
                                         ID="btnsave"
-                                        runat="server"
-                                        CssClass="btn btn-success btn-lg shadow"
-                                        OnClick="btnsave_Click" OnClientClick="showLoader();">
+                                        runat="server" OnClientClick="return validateBeforeSave();"
+                                        CssClass="btn btn-success btn-lg shadow" OnClick="btnsave_Click">
 
-                     <i class="bi bi-cart-check-fill"></i>
-                     Place Order
+                                         <i class="bi bi-cart-check-fill"></i>
+                                         Place Order
                                     </asp:LinkButton>
                                 </div>
                             </div>
                         </div>
                     </div>
-
                     <div class="col-lg-9">
                         <div class="card border-0 shadow">
                             <div class="card-header py-3">

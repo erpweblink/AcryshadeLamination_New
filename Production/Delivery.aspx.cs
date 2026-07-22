@@ -55,6 +55,7 @@ public partial class Delivery : System.Web.UI.Page
         cmd.SelectCommand.Parameters.AddWithValue("@SP_Action", "GetDeliveryList");
         cmd.SelectCommand.Parameters.AddWithValue("@ProductName", txtcompanyname.Text);
         cmd.SelectCommand.Parameters.AddWithValue("@ShowRecords", ddlPageSize.SelectedValue);
+        cmd.SelectCommand.Parameters.AddWithValue("@Remark", ddlWOStatus.SelectedValue);
         cmd.SelectCommand.Parameters.Add("@Result", SqlDbType.Int).Direction = ParameterDirection.Output;
         cmd.Fill(dt);
         GVCompany.DataSource = dt;
@@ -80,6 +81,9 @@ public partial class Delivery : System.Web.UI.Page
                 bool isDispatched = Convert.ToBoolean(args[2]);
 
                 bool isAllCompleted = Convert.ToBoolean(string.IsNullOrWhiteSpace(args[3]) ? "False" : args[3]);
+
+                DateTime EstimDate = Convert.ToDateTime(args[4]);
+                DateTime OutDelivery = Convert.ToDateTime(args[5]);
 
                 if (isAllCompleted == null || isAllCompleted == false)
                 {
@@ -144,6 +148,30 @@ public partial class Delivery : System.Web.UI.Page
                         Session["url"] = "/Production/Delivery.aspx";
                         Response.Redirect("/Alerts.aspx");
                     }
+                }
+                else
+                {
+                    if (DateTime.Today < EstimDate.Date)
+                    {
+                        Session["message"] = "Out for Delivery cannot be marked as Delivered before " + EstimDate.Date.ToString("dd-MM-yyyy")+".";
+                        Session["icon"] = "warning";
+                        Session["time"] = "6000";
+                        Session["url"] = "/Production/Delivery.aspx";
+                        Response.Redirect("/Alerts.aspx");
+
+                        return;
+                    }
+                    else
+                    {
+                        SqlCommand Cmd = new SqlCommand("SP_ProductionsPlanning", con);
+                        Cmd.CommandType = CommandType.StoredProcedure;
+                        Cmd.Parameters.AddWithValue("@SP_Action", "IsDeliveredDate");
+                        Cmd.Parameters.AddWithValue("@Id", args[0]);
+                        Cmd.Parameters.Add("@Result", SqlDbType.Int).Direction = ParameterDirection.Output;
+
+                        Cmd.ExecuteNonQuery();
+                    }
+
                 }
 
             }
