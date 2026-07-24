@@ -572,6 +572,7 @@ public partial class WorkOrderMaster : System.Web.UI.Page
                 cmds.Parameters.AddWithValue("@Dealer", dealerId);
                 cmds.Parameters.AddWithValue("@UploadedImage", string.IsNullOrEmpty(dt.Rows[0]["AttachmentPath"].ToString()) ? DBNull.Value : (Object)dt.Rows[0]["AttachmentPath"].ToString());
                 cmds.Parameters.AddWithValue("@SP_Action", "PlaceorderHDR");
+                cmds.Parameters.AddWithValue("@Unit", "Direct");
                 cmds.Parameters.Add("@Result", SqlDbType.Int).Direction = ParameterDirection.Output;
                 cmds.ExecuteNonQuery();
                 OrderHeaderId = Convert.ToInt32(cmds.Parameters["@Result"].Value);

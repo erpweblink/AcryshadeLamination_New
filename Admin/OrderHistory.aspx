@@ -14,7 +14,6 @@
             flex-wrap: wrap;
         }
 
-            /* remove default margin issues */
             .order-headerss h2 {
                 margin: 0;
                 white-space: nowrap;
@@ -23,6 +22,7 @@
         .order-subrow {
             display: flex;
             align-items: center;
+            justify-content: flex-end;
             gap: 15px;
         }
 
@@ -30,17 +30,32 @@
                 max-width: 220px;
             }
 
-        /* optional styling for link h2 */
-        .product-link a {
+        .product-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 40px;
+            border-radius: 9px;
+            font-size: 23px;
+            color: #fff;
             text-decoration: none;
-            font-size: 16px;
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            box-shadow: 0 3px 8px rgba(99, 102, 241, 0.35);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
+
+            .product-link:hover {
+                color: #fff;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 12px rgba(99, 102, 241, 0.45);
+            }
 
         /* Mobile responsiveness */
         @media (max-width: 600px) {
             .order-headerss {
                 flex-direction: column;
-                align-items: stretch; /* was flex-start */
+                align-items: stretch;
                 gap: 12px;
             }
 
@@ -57,10 +72,6 @@
                 .order-subrow select {
                     max-width: 60%;
                     flex: 1;
-                }
-
-                .order-subrow h2 {
-                    margin: 0;
                 }
         }
 
@@ -791,7 +802,6 @@
             <div class="order-container">
                 <div class="order-headerss">
                     <h2 class="fw-bold">My Orders</h2>
-
                     <div class="order-subrow">
                         <select id="ddlStatusFilter"
                             class="form-select"
@@ -811,9 +821,9 @@
                             <option value="Order Canceled" style="color: #DC2626;">Order Canceled</option>
                         </select>
 
-                        <h2 class="product-link">
-                            <a href="/Admin/PlaceOrder.aspx"><i>Product List</i></a>
-                        </h2>
+                        <a href="/Admin/PlaceOrder.aspx" class="product-link" title="Product List">
+                            <i class="bi bi-box-seam"></i>
+                        </a>
                     </div>
                 </div>
                 <br />

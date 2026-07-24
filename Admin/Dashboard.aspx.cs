@@ -176,7 +176,7 @@ public partial class Dashboard : System.Web.UI.Page
                 var cell = ws.Cells[1, col + 1];
                 cell.Value = dt.Columns[col].ColumnName;
                 cell.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                cell.Style.Fill.BackgroundColor.SetColor(Color.Black);
+                cell.Style.Fill.BackgroundColor.SetColor(ColorTranslator.FromHtml("#3458a5"));
                 cell.Style.Font.Color.SetColor(Color.White);
                 cell.Style.Font.Bold = true;
                 cell.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;

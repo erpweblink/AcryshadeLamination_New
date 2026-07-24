@@ -208,6 +208,15 @@ public partial class Packaging : System.Web.UI.Page
                         cmd001.ExecuteNonQuery();
                     }
 
+                    string updateWOHeaderQuery = @"UPDATE tbl_WorkOrderHdr SET isproductioncompleted = 0 
+                    WHERE ID =  @DetailedId";
+
+                    using (SqlCommand cmWOHeaderQuery = new SqlCommand(updateWOHeaderQuery, con))
+                    {
+                        cmWOHeaderQuery.Parameters.AddWithValue("@DetailedId", workOrderId);
+                        cmWOHeaderQuery.ExecuteNonQuery();
+                    }
+
                     headerStatus = "Reverted";
                 }
 
@@ -287,14 +296,14 @@ public partial class Packaging : System.Web.UI.Page
                     cmupdateHeaderQueryd.ExecuteNonQuery();
                 }
 
-                string updateWOHeaderQuery = @"UPDATE tbl_WorkOrderHdr SET isproductioncompleted = 1 
-                    WHERE ID =  @DetailedId";
+                //string updateWOHeaderQuery = @"UPDATE tbl_WorkOrderHdr SET isproductioncompleted = 1 
+                //    WHERE ID =  @DetailedId";
 
-                using (SqlCommand cmWOHeaderQuery = new SqlCommand(updateWOHeaderQuery, con))
-                {
-                    cmWOHeaderQuery.Parameters.AddWithValue("@DetailedId", workOrderId);
-                    cmWOHeaderQuery.ExecuteNonQuery();
-                }
+                //using (SqlCommand cmWOHeaderQuery = new SqlCommand(updateWOHeaderQuery, con))
+                //{
+                //    cmWOHeaderQuery.Parameters.AddWithValue("@DetailedId", workOrderId);
+                //    cmWOHeaderQuery.ExecuteNonQuery();
+                //}
 
 
                 int PalcOrderId = 0;

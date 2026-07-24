@@ -389,6 +389,15 @@ public partial class WoProductionS2 : System.Web.UI.Page
                         cmd.ExecuteNonQuery();
                     }
 
+                    string updateWOHeaderQuery = @"UPDATE tbl_WorkOrderHdr SET isproductioncompleted = 1 
+                    WHERE ID =  @DetailedId";
+
+                    using (SqlCommand cmWOHeaderQuery = new SqlCommand(updateWOHeaderQuery, con))
+                    {
+                        cmWOHeaderQuery.Parameters.AddWithValue("@DetailedId", workOrderId);
+                        cmWOHeaderQuery.ExecuteNonQuery();
+                    }
+
                     headerStatus = "Completed";
                 }
 
