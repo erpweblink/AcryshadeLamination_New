@@ -55,10 +55,24 @@ public partial class UserList : System.Web.UI.Page
         cmd.SelectCommand.Parameters.AddWithValue("@FullName", txtcompanyname.Text);
         cmd.SelectCommand.Parameters.AddWithValue("@ShowRecords", ddlPageSize.SelectedValue);
         cmd.Fill(dt);
+
+        int totalRecords = dt.Rows.Count;
+
         GVCompany.DataSource = dt;
         GVCompany.DataBind();
+
+        int pageSize = GVCompany.PageSize;
+        int currentPage = GVCompany.PageIndex + 1;
+        int startRecord = ((currentPage - 1) * pageSize) + 1;
+        int endRecord = Math.Min(currentPage * pageSize, totalRecords);
+
+        if (totalRecords == 0)
+            lblRecordInfo.Text = "No records found";
+        else
+            lblRecordInfo.Text = "Showing "+startRecord+" to "+endRecord+" of "+totalRecords+" records";
     }
 
+  
     protected void GVCompany_RowCommand(object sender, GridViewCommandEventArgs e)
     {
         int id = Convert.ToInt32(e.CommandArgument.ToString());

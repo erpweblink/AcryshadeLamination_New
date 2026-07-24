@@ -229,14 +229,16 @@
                                 <asp:TemplateField HeaderText="Status" HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center" HeaderStyle-Width="160px">
                                     <ItemTemplate>
                                         <asp:LinkButton ID="lblVal" runat="server"
-                                            Visible='<%# string.IsNullOrWhiteSpace(Eval("IsAllCompleted").ToString()) ? true : true %>'
+                                            Enabled='<%# string.IsNullOrWhiteSpace(Eval("OrderDelivered").ToString()) ? true : false %>'
                                             Text='<%#
+                                                    !string.IsNullOrWhiteSpace(Eval("OrderDelivered").ToString()) ?"Delivered" :
                                                     Eval("IsAllCompleted").ToString() == "True" ? "Out for Delivery" :
                                                     Eval("IsDispatched").ToString() == "True" ? "Dispatched" :
                                                     Eval("IsProductionCompleted").ToString() == "True" ? "Ready to Dispatch" :
                                                     ""
                                                 %>'
                                             ForeColor='<%#
+                                                    !string.IsNullOrWhiteSpace(Eval("OrderDelivered").ToString())? System.Drawing.ColorTranslator.FromHtml("#994800"):
                                                     Eval("IsAllCompleted").ToString() == "True" ? System.Drawing.ColorTranslator.FromHtml("#0f5df1") :
                                                     Eval("IsDispatched").ToString() == "True" ? System.Drawing.Color.Green :
                                                     Eval("IsProductionCompleted").ToString() == "True" ? System.Drawing.Color.Red :
@@ -244,7 +246,7 @@
                                                 %>'
                                             Font-Bold="true"
                                             CommandName="UpdateStatus"
-                                            CommandArgument='<%# Eval("ID") + "," + Eval("IsProductionCompleted") + "," + Eval("IsDispatched") + "," + Eval("IsAllCompleted")+ "," + Eval("OgForDate") + "," + Eval("OgForLRUplodedDate")%>'>
+                                            CommandArgument='<%# Eval("ID") + "," + Eval("IsProductionCompleted") + "," + Eval("IsDispatched") + "," + Eval("IsAllCompleted")+ "," + Eval("OgForDate") %>'>
                                        </asp:LinkButton>
                                     </ItemTemplate>
                                 </asp:TemplateField>

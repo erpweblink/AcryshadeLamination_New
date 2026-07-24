@@ -30,7 +30,7 @@ public partial class Reports_ProductionReport : System.Web.UI.Page
                 string username = Session["ID"].ToString();
                 using (SqlConnection cons = new SqlConnection(ConfigurationManager.ConnectionStrings["constr"].ConnectionString))
                 {
-                    string query = @"SELECT PageAccess FROM tbl_UserRoleAuthorization WHERE UserID = @UserID AND PageName = 'ProductionTrackingReports.aspx'";
+                    string query = @"SELECT PageAccess FROM tbl_UserRoleAuthorization WHERE UserID = @UserID AND PageName = 'ProductionReport.aspx'";
                     SqlCommand cmds = new SqlCommand(query, cons);
                     cmds.Parameters.AddWithValue("@UserID", username);
                     cons.Open();
@@ -106,7 +106,7 @@ public partial class Reports_ProductionReport : System.Web.UI.Page
         Response.Clear();
         Response.Buffer = true;
         Response.AddHeader("content-disposition",
-            "attachment;filename=ProductionReport.xls");
+            "attachment;filename=ProductionReport_"+DateTime.Now+".xls");
         Response.Charset = "";
         Response.ContentType = "application/vnd.ms-excel";
 
@@ -248,11 +248,7 @@ public partial class Reports_ProductionReport : System.Web.UI.Page
         return items;
     }
 
-    protected void txtproduct_TextChanged(object sender, EventArgs e)
-    {
-        FillGrid();
-    }
-
+   
     private void BindMachine()
     {
         using (SqlConnection con = new SqlConnection(
@@ -278,16 +274,7 @@ public partial class Reports_ProductionReport : System.Web.UI.Page
         }
     }
 
-    protected void ddlMachine_SelectedIndexChanged(object sender, EventArgs e)
-    {
-        FillGrid();
-    }
 
-
-    protected void ddlstatus_SelectedIndexChanged(object sender, EventArgs e)
-    {
-        FillGrid();
-    }
 }
 
 

@@ -1176,6 +1176,36 @@
 
             return true;
         }
+
+        function CheckIsValidDealer() {
+
+            var dealerName = $("#<%= txtDealerName.ClientID %>").val().trim();
+
+            if (dealerName == "")
+                return;
+
+            $.ajax({
+                type: "POST",
+                url: "WorkOrderMaster.aspx/CheckDealer",
+                data: JSON.stringify({ dealerName: dealerName }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (response) {
+
+                    if (!response.d) {
+                        alert("Invalid Billing Name.");
+
+                        $("#<%= txtDealerName.ClientID %>").val("");
+                        $("#<%= hdnDealerId.ClientID %>").val("");
+
+                        $("#<%= txtDealerName.ClientID %>").focus();
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr.responseText);
+                }
+            });
+        }
     </script>
 
 </asp:Content>
@@ -1213,7 +1243,7 @@
                         <div class="col-md-4 col-12">
                             <asp:Label ID="lblDealerName" runat="server" Font-Bold="true" CssClass="form-label"><span class="spncls">*</span>Billing Name:</asp:Label>
                             <asp:HiddenField ID="hdnDealerId" runat="server" />
-                            <asp:TextBox ID="txtDealerName" runat="server" AutoComplete="off" ValidationGroup="001" CssClass="form-control"></asp:TextBox>
+                            <asp:TextBox ID="txtDealerName" runat="server" AutoComplete="off" ValidationGroup="001" CssClass="form-control" onblur="CheckIsValidDealer()"></asp:TextBox>
                             <asp:AutoCompleteExtender ID="AutoCompleteExtender1" runat="server" CompletionListCssClass="completionList"
                                 CompletionListHighlightedItemCssClass="itemHighlighted" CompletionListItemCssClass="listItem"
                                 CompletionInterval="10" MinimumPrefixLength="1" ServiceMethod="GetDealerNameList"
@@ -1370,7 +1400,7 @@
                                     <td style="border: 1px solid #e3e6f0; padding: 8px;">
                                         <input type="number" min="1" name="Qty[]"
                                             class="form-control qty" onkeypress="return event.charCode >= 48 && event.charCode <= 57"
-                                            style="border-radius: 8px; height: 42px; min-width: 70px;" oninput=" if(this.value==0) this.value=1; GetSQFeet(this)" />
+                                            style="border-radius: 8px; height: 42px; min-width: 70px;" oninput=" if(this.value==0) this.value=1;  if (this.value > 10000) this.value = 10000; GetSQFeet(this)" />
                                         <div class="error-msg qty-error text-danger" style="font-size: 12px;"></div>
                                     </td>
 

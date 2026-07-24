@@ -163,7 +163,7 @@
                     <hr />
                     <div class="table-responsive">
                         <asp:GridView ID="GVCompany" runat="server" DataKeyNames="ID" OnRowDataBound="GVCompany_RowDataBound" CssClass="table table-bordered table-striped" HeaderStyle-BackColor="#2d6be0"
-                            HeaderStyle-Font-Bold="true"  HeaderStyle-HorizontalAlign="Center" AutoGenerateColumns="false" OnRowCommand="GVCompany_RowCommand">
+                            HeaderStyle-Font-Bold="true" HeaderStyle-HorizontalAlign="Center" AutoGenerateColumns="false" OnRowCommand="GVCompany_RowCommand">
                             <Columns>
                                 <asp:TemplateField HeaderText="Sr.No." HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center">
                                     <ItemTemplate>
@@ -175,7 +175,7 @@
                                         <asp:Label ID="lblUserCode" runat="server" Text='<%#Eval("UserCode")%>'></asp:Label>
                                     </ItemTemplate>
                                 </asp:TemplateField>
-                                <asp:TemplateField HeaderText="Dealer Name" HeaderStyle-ForeColor="White"  ItemStyle-HorizontalAlign="Center" >
+                                <asp:TemplateField HeaderText="Dealer Name" HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center">
                                     <ItemTemplate>
                                         <asp:Label ID="lblFullName" runat="server" Text='<%#Eval("FullName")%>'></asp:Label>
                                     </ItemTemplate>

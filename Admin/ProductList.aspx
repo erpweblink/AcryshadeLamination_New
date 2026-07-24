@@ -253,14 +253,14 @@
                                             <asp:Image ID="imG" runat="server"
                                                 ImageUrl='<%# !string.IsNullOrEmpty(Convert.ToString(Eval("ImagenamePath"))) 
                                                   ? Convert.ToString(Eval("ImagenamePath")).Replace("~/", "/Content/") 
-                                                  : "https://placehold.co/100x100?text=Image" %>'
+                                                  : "https://placehold.co/100x100?text=" + Convert.ToString(Eval("Productname")) + "\n" + Convert.ToString(Eval("Size")) %>'
                                                 CssClass="product-image-preview" />
 
                                             <div class="image-popup">
                                                 <asp:Image ID="imgLarge" runat="server"
                                                     ImageUrl='<%# !string.IsNullOrEmpty(Convert.ToString(Eval("ImagenamePath"))) 
                                                       ? Convert.ToString(Eval("ImagenamePath")).Replace("~/", "/Content/") 
-                                                      : "https://placehold.co/400x400?text=Image" %>' />
+                                                      : "https://placehold.co/400x400?text=" + Convert.ToString(Eval("Productname")) + "\n" + Convert.ToString(Eval("Size")) %>' />
                                             </div>
                                         </div>
                                     </ItemTemplate>

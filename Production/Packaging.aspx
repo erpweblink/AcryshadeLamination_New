@@ -150,6 +150,16 @@
                 success: function (response) {
                     var rows = JSON.parse(response.d);
                     AssignWorkOrders = [];
+
+                    if (!rows || rows.length === 0) {
+
+                        $("#woContainer").html(
+                            "<div class='alert alert-info mb-0'>No work orders in Packaging.</div>"
+                        );
+
+                        return;
+                    }
+
                     var grouped = {};
 
                     $.each(rows, function (i, row) {
@@ -162,7 +172,7 @@
                                 customer: row.Dealer,
                                 totalSqFeet: 0,
                                 totalQty: 0,
-                                alloqty:0,
+                                alloqty: 0,
                                 competeQty: 0,
                                 details: [],
                                 isCompleted: true,
@@ -318,7 +328,7 @@
 
         }
 
-        function toggleDetails(id,btn) {
+        function toggleDetails(id, btn) {
 
             var row = $("#detailRow_" + id);
 
@@ -456,50 +466,50 @@
         }
 
         //function openImage(src) {
-           // $("#modalImg").attr("src", src);
-           // $("#imageModal").fadeIn();
+        // $("#modalImg").attr("src", src);
+        // $("#imageModal").fadeIn();
         //}
-       // $(document).on("click", "#imageModal", function () {
+        // $(document).on("click", "#imageModal", function () {
         //    $(this).fadeOut();
-       // });
-		
-		function openImage(src) {
-    // Show the modal
-    $("#modalImg").attr("src", src);
-    $("#imageModal").fadeIn();
+        // });
 
-    // Important: stop the click event from bubbling up
-    // so the same click doesn't trigger the close handler
-    event.stopPropagation();
-}
+        function openImage(src) {
+            // Show the modal
+            $("#modalImg").attr("src", src);
+            $("#imageModal").fadeIn();
 
-// Close when clicking the background (outside the image)
-$(document).on("click", "#imageModal", function (e) {
-    if (e.target === this) {
-        $(this).fadeOut();
-    }
-});
+            // Important: stop the click event from bubbling up
+            // so the same click doesn't trigger the close handler
+            event.stopPropagation();
+        }
 
-// Prevent clicks on the image itself from closing the modal
-$(document).on("click", "#modalImg", function (e) {
-    e.stopPropagation();
-});
+        // Close when clicking the background (outside the image)
+        $(document).on("click", "#imageModal", function (e) {
+            if (e.target === this) {
+                $(this).fadeOut();
+            }
+        });
 
-// Close when clicking anywhere else in the page (like table cells)
-$(document).on("click", function (e) {
-    if ($("#imageModal").is(":visible") &&
-        !$(e.target).closest("#modalImg").length &&
-        !$(e.target).closest("#imageModal").length) {
-        $("#imageModal").fadeOut();
-    }
-});
+        // Prevent clicks on the image itself from closing the modal
+        $(document).on("click", "#modalImg", function (e) {
+            e.stopPropagation();
+        });
 
-// Optional: close with ESC key
-$(document).on("keyup", function (e) {
-    if (e.key === "Escape") {
-        $("#imageModal").fadeOut();
-    }
-});
+        // Close when clicking anywhere else in the page (like table cells)
+        $(document).on("click", function (e) {
+            if ($("#imageModal").is(":visible") &&
+                !$(e.target).closest("#modalImg").length &&
+                !$(e.target).closest("#imageModal").length) {
+                $("#imageModal").fadeOut();
+            }
+        });
+
+        // Optional: close with ESC key
+        $(document).on("keyup", function (e) {
+            if (e.key === "Escape") {
+                $("#imageModal").fadeOut();
+            }
+        });
 
 
         function selectReason(type, woId, index) {
@@ -655,12 +665,12 @@ $(document).on("keyup", function (e) {
                 </div>
                 <div class="card-body">
                     <div class="box">
-						 <div class="table-responsive">
-                        <div id="woContainer"></div>
-                        <div id="imageModal" class="image-popup">
-                            <img id="modalImg" src="" />
+                        <div class="table-responsive">
+                            <div id="woContainer"></div>
+                            <div id="imageModal" class="image-popup">
+                                <img id="modalImg" src="" />
+                            </div>
                         </div>
-							</div>
                     </div>
                 </div>
             </div>

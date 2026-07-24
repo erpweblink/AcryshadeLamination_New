@@ -55,6 +55,7 @@ public partial class CompanyList : System.Web.UI.Page
         cmd.SelectCommand.Parameters.AddWithValue("@ShowRecords", ddlPageSize.SelectedValue);
         cmd.SelectCommand.Parameters.Add("@Result", SqlDbType.Int).Direction = ParameterDirection.Output;
         cmd.Fill(dt);
+
         GVCompany.DataSource = dt;
         GVCompany.DataBind();
     }

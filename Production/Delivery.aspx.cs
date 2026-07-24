@@ -83,7 +83,6 @@ public partial class Delivery : System.Web.UI.Page
                 bool isAllCompleted = Convert.ToBoolean(string.IsNullOrWhiteSpace(args[3]) ? "False" : args[3]);
 
                 DateTime EstimDate = Convert.ToDateTime(args[4]);
-                DateTime OutDelivery = Convert.ToDateTime(args[5]);
 
                 if (isAllCompleted == null || isAllCompleted == false)
                 {

@@ -63,7 +63,7 @@ public partial class WorkOrderMaster : System.Web.UI.Page
                     string ID = objcls.Decrypt(Request.QueryString["OrderID"].ToString());
                     hdnVal.Value = ID;
                     LoadOrderedData(ID);
-                }
+                }           
             }
         }
     }
@@ -330,6 +330,7 @@ public partial class WorkOrderMaster : System.Web.UI.Page
 
             con.Open();
 
+            int OrderHeaderID = 0;
             using (SqlCommand cmd = new SqlCommand("SP_WorkOrderMaster", con))
             {
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -417,8 +418,12 @@ public partial class WorkOrderMaster : System.Web.UI.Page
                 cmd.Parameters.Add("@Result", SqlDbType.Int).Direction = ParameterDirection.Output;
                 cmd.ExecuteNonQuery();
                 Id = Convert.ToInt32(cmd.Parameters["@Result"].Value);
-            }
 
+                if (Request.QueryString["OrderID"] == null && Request.QueryString["Id"] == null)
+                {
+                    OrderHeaderID = CreateDealerOrderHdr(Id, hdnDealerId.Value);
+                }
+            }
 
             if (btnsave.Text == "Update")
             {
@@ -499,8 +504,18 @@ public partial class WorkOrderMaster : System.Web.UI.Page
                     cmd.Parameters.Add("@Result", SqlDbType.Int).Direction = ParameterDirection.Output;
                     cmd.ExecuteNonQuery();
                 }
+
+
             }
 
+            if (Request.QueryString["OrderID"] == null && Request.QueryString["Id"] == null)
+            {
+                CreateDealerOrderDtls(Id, OrderHeaderID);
+            }
+            if (btnsave.Text == "Update")
+            {
+                UpdateDealerOrderDtls(Convert.ToInt32(hdnVal.Value));
+            }
 
             if (Request.QueryString["OrderID"] != null)
             {
@@ -538,6 +553,134 @@ public partial class WorkOrderMaster : System.Web.UI.Page
         {
             con.Close();
             throw;
+        }
+    }
+
+    protected int CreateDealerOrderHdr(int Id, string dealerId)
+    {
+        int OrderHeaderId = 0;
+        DataTable dt = new DataTable();
+        SqlDataAdapter cmd = new SqlDataAdapter("SELECT * FROM tbl_WorkOrderHdr WHERE Id = @Id", con);
+        cmd.SelectCommand.Parameters.AddWithValue("@Id", Id);
+        cmd.Fill(dt);
+        if (dt.Rows.Count > 0)
+        {
+            using (SqlCommand cmds = new SqlCommand("SP_WorkOrderMaster", con))
+            {
+                cmds.CommandType = CommandType.StoredProcedure;
+
+                cmds.Parameters.AddWithValue("@Dealer", dealerId);
+                cmds.Parameters.AddWithValue("@UploadedImage", string.IsNullOrEmpty(dt.Rows[0]["AttachmentPath"].ToString()) ? DBNull.Value : (Object)dt.Rows[0]["AttachmentPath"].ToString());
+                cmds.Parameters.AddWithValue("@SP_Action", "PlaceorderHDR");
+                cmds.Parameters.Add("@Result", SqlDbType.Int).Direction = ParameterDirection.Output;
+                cmds.ExecuteNonQuery();
+                OrderHeaderId = Convert.ToInt32(cmds.Parameters["@Result"].Value);
+            }
+
+
+            DataTable dt2 = new DataTable();
+            SqlDataAdapter cmd2 = new SqlDataAdapter("SELECT * FROM tbl_DealersOrderHDR WHERE Id = @Id", con);
+            cmd2.SelectCommand.Parameters.AddWithValue("@Id", OrderHeaderId);
+            cmd2.Fill(dt2);
+            if (dt2.Rows.Count > 0)
+            {
+                string querys = @"UPDATE tbl_WorkOrderHdr SET PlaceOrderID = @OrderID,CustomerRefNo = @OrderNo WHERE ID =@ID";
+
+                SqlCommand cmdss = new SqlCommand(querys, con);
+                cmdss.Parameters.AddWithValue("@OrderID", OrderHeaderId);
+                cmdss.Parameters.AddWithValue("@OrderNo", dt2.Rows[0]["OrderID"].ToString());
+                cmdss.Parameters.AddWithValue("@ID", Id);
+                cmdss.ExecuteNonQuery();
+
+            }
+
+               
+        }
+        return OrderHeaderId;
+    }
+
+    protected void CreateDealerOrderDtls(int Id, int OrderHeaderId)
+    {
+        DataTable dt = new DataTable();
+        SqlDataAdapter cmd = new SqlDataAdapter("SELECT * FROM tbl_WorkOrderDetails WHERE HeaderId = @Id", con);
+        cmd.SelectCommand.Parameters.AddWithValue("@Id", Id);
+        cmd.Fill(dt);
+        if (dt.Rows.Count > 0)
+        {
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                using (SqlCommand cmds = new SqlCommand("SP_WorkOrderMaster", con))
+                {
+                    cmds.CommandType = CommandType.StoredProcedure;
+
+                    cmds.Parameters.AddWithValue("@HeaderID", OrderHeaderId);
+                    cmds.Parameters.AddWithValue("@ProductId", dt.Rows[i]["ProductId"].ToString());
+                    cmds.Parameters.AddWithValue("@ProductName", dt.Rows[i]["ProductName"].ToString());
+                    cmds.Parameters.AddWithValue("@Type", dt.Rows[i]["Type"].ToString());
+                    cmds.Parameters.AddWithValue("@Size", dt.Rows[i]["Size"].ToString());
+                    cmds.Parameters.AddWithValue("@Qty", dt.Rows[i]["Qty"].ToString());
+                    cmds.Parameters.AddWithValue("@Description", dt.Rows[i]["Description"].ToString());
+                    cmds.Parameters.AddWithValue("@UploadedImage", string.IsNullOrEmpty(dt.Rows[i]["UploadedImage"].ToString()) ? DBNull.Value : (Object)dt.Rows[i]["UploadedImage"].ToString());
+                    cmds.Parameters.AddWithValue("@SP_Action", "PlaceorderDtls");
+                    cmds.Parameters.Add("@Result", SqlDbType.Int).Direction = ParameterDirection.Output;
+                    cmds.ExecuteNonQuery();
+                }
+            }
+
+        }
+    }
+
+    protected void UpdateDealerOrderDtls(int Id)
+    {
+        DataTable dt1 = new DataTable();
+        SqlDataAdapter cmd1 = new SqlDataAdapter("SELECT * FROM tbl_WorkOrderHdr WHERE Id = @Id", con);
+        cmd1.SelectCommand.Parameters.AddWithValue("@Id", Id);
+        cmd1.Fill(dt1);
+        if (dt1.Rows.Count > 0)
+        {
+            DataTable dt2 = new DataTable();
+            SqlDataAdapter cmd2 = new SqlDataAdapter("SELECT * FROM tbl_DealersOrderHDR WHERE Id = @Id", con);
+            cmd2.SelectCommand.Parameters.AddWithValue("@Id", 
+                string.IsNullOrWhiteSpace(dt1.Rows[0]["PlaceOrderID"].ToString())
+                ? "0" : dt1.Rows[0]["PlaceOrderID"].ToString());
+            cmd2.Fill(dt2);
+            if (dt2.Rows.Count > 0)
+            {
+                using (SqlCommand cmdss = new SqlCommand("DELETE tbl_DealersOrderDTLs WHERE HeaderId = @HeaderId", con))
+                {
+                    cmdss.Parameters.AddWithValue("@HeaderId", dt2.Rows[0]["Id"].ToString());
+                    cmdss.ExecuteNonQuery();
+                }
+
+
+                DataTable dt = new DataTable();
+                SqlDataAdapter cmd = new SqlDataAdapter("SELECT * FROM tbl_WorkOrderDetails WHERE HeaderId = @Id", con);
+                cmd.SelectCommand.Parameters.AddWithValue("@Id", Id);
+                cmd.Fill(dt);
+                if (dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        using (SqlCommand cmds = new SqlCommand("SP_WorkOrderMaster", con))
+                        {
+                            cmds.CommandType = CommandType.StoredProcedure;
+
+                            cmds.Parameters.AddWithValue("@HeaderID", dt2.Rows[0]["Id"].ToString());
+                            cmds.Parameters.AddWithValue("@ProductId", dt.Rows[i]["ProductId"].ToString());
+                            cmds.Parameters.AddWithValue("@ProductName", dt.Rows[i]["ProductName"].ToString());
+                            cmds.Parameters.AddWithValue("@Type", dt.Rows[i]["Type"].ToString());
+                            cmds.Parameters.AddWithValue("@Size", dt.Rows[i]["Size"].ToString());
+                            cmds.Parameters.AddWithValue("@Qty", dt.Rows[i]["Qty"].ToString());
+                            cmds.Parameters.AddWithValue("@Description", dt.Rows[i]["Description"].ToString());
+                            cmds.Parameters.AddWithValue("@UploadedImage", string.IsNullOrEmpty(dt.Rows[i]["UploadedImage"].ToString()) ? DBNull.Value : (Object)dt.Rows[i]["UploadedImage"].ToString());
+                            cmds.Parameters.AddWithValue("@SP_Action", "PlaceorderDtls");
+                            cmds.Parameters.Add("@Result", SqlDbType.Int).Direction = ParameterDirection.Output;
+                            cmds.ExecuteNonQuery();
+                        }
+                    }
+
+                }
+            }
         }
     }
 
@@ -839,6 +982,28 @@ public partial class WorkOrderMaster : System.Web.UI.Page
 
             return count > 0;
         }
+    }
+
+    [WebMethod]
+    public static bool CheckDealer(string dealerName)
+    {
+        bool isExists = false;
+
+        string conString = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+
+        using (SqlConnection con = new SqlConnection(conString))
+        {
+            using (SqlCommand cmd = new SqlCommand("SELECT COUNT(1) FROM tbl_UserMaster WHERE FullName=@DealerName", con))
+            {
+                cmd.Parameters.AddWithValue("@DealerName", dealerName);
+
+                con.Open();
+
+                isExists = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+            }
+        }
+
+        return isExists;
     }
 }
 

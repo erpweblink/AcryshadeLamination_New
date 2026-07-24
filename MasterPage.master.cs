@@ -231,13 +231,23 @@ public partial class MasterPage : System.Web.UI.MasterPage
 
                 /*Reports*/
                 {
-                    if (MenuName == "ProductionTrackingReports.aspx")
+                    if (MenuName == "ProductionReport.aspx")
                     {
                         string PageAccess = row["PageAccess"].ToString();
                         PTRTab.Visible = PageAccess == "True" ? true : false;
                     }
+                    if (MenuName == "MachineBreakdown.aspx")
+                    {
+                        string PageAccess = row["PageAccess"].ToString();
+                        MDTab.Visible = PageAccess == "True" ? true : false;
+                    }
+                    if (MenuName == "TrendingReports.aspx")
+                    {
+                        string PageAccess = row["PageAccess"].ToString();
+                        TrenTab.Visible = PageAccess == "True" ? true : false;
+                    }
 
-                    if(PTRTab.Visible== false)
+                    if(PTRTab.Visible== false && MDTab.Visible == false && TrenTab.Visible == false)
                     {
                         DIvRep.Visible = false;
                     }

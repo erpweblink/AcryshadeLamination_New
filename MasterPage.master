@@ -231,11 +231,23 @@
                     </a>
 
                     <div class="dropdown-menu-sidebar">
-                        <a href="/Reports/ProductionTrackingReports.aspx" class="nav-link sub-link" id="PTRTab" runat="server" title="📈 Production Tracking Reports">
+                        <a href="/Reports/ProductionReport.aspx" class="nav-link sub-link" id="PTRTab" runat="server" title="📈 Production Tracking Reports">
                             <span class="nav-icon">
                                 <i class="bi bi-caret-right-fill"></i>
                             </span>
-                            <span class="nav-text">Production Tracking Reports</span>
+                            <span class="nav-text">Production Reports</span>
+                        </a>
+                        <a href="/Reports/MachineBreakdown.aspx" class="nav-link sub-link" id="MDTab" runat="server" title="🔧 Machine BreakDown Reports">
+                            <span class="nav-icon">
+                                <i class="bi bi-wrench-adjustable-circle"></i>
+                            </span>
+                            <span class="nav-text">Machine BreakDown</span>
+                        </a>
+                        <a href="/Reports/TrendingReports.aspx" class="nav-link sub-link" id="TrenTab" runat="server" title="📊 Trending Products Reports">
+                            <span class="nav-icon">
+                                <i class="bi bi-caret-right-fill"></i>
+                            </span>
+                            <span class="nav-text">Trending Reports</span>
                         </a>
                     </div>
                 </div>

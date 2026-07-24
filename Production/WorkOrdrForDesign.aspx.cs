@@ -56,7 +56,7 @@ public partial class WorkOrdrForDesign : System.Web.UI.Page
             Cmd.ExecuteNonQuery();
             con.Close();
 
-            Session["message"] = "Work order approved successfully.";
+            Session["message"] = "Work order designs approved successfully.";
             Session["icon"] = "success";
             Session["time"] = "2000";
             Session["url"] = "/Production/WorkOrdrForDesign.aspx";
@@ -73,7 +73,7 @@ public partial class WorkOrdrForDesign : System.Web.UI.Page
             Cmd.ExecuteNonQuery();
             con.Close();
 
-            Session["message"] = "Work order disapproved successfully.";
+            Session["message"] = "Work order designs rejected successfully.";
             Session["icon"] = "success";
             Session["time"] = "2000";
             Session["url"] = "/Production/WorkOrdrForDesign.aspx";
@@ -83,7 +83,7 @@ public partial class WorkOrdrForDesign : System.Web.UI.Page
         {
             SqlCommand Cmd = new SqlCommand("SP_WorkOrderMaster", con);
             Cmd.CommandType = CommandType.StoredProcedure;
-            Cmd.Parameters.AddWithValue("@SP_Action", "DisApprove");
+            Cmd.Parameters.AddWithValue("@SP_Action", "Revoke");
             Cmd.Parameters.AddWithValue("@Id", e.CommandArgument.ToString());
             Cmd.Parameters.Add("@Result", SqlDbType.Int).Direction = ParameterDirection.Output;
             con.Open();

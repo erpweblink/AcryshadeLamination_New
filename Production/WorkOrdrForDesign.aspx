@@ -111,11 +111,14 @@
                                     <asp:ListItem Text="50" Value="50" />
                                     <asp:ListItem Text="All" Value="0" />
                                 </asp:DropDownList>
-                            </div>&nbsp;&nbsp;
+                            </div>
+                            &nbsp;&nbsp;
+                           
                             <div style="width: 150px;">
                                 <asp:DropDownList ID="ddlWOStatus" runat="server" CssClass="form-control" AutoPostBack="true" Font-Bold="true" OnSelectedIndexChanged="ddlPageSize_SelectedIndexChanged">
                                     <asp:ListItem Text="Assigned" Value="Assigned" Selected="True" />
-                                    <asp:ListItem Text="Completed" Value="Completed" />
+                                    <asp:ListItem Text="Approved" Value="Completed" />
+                                    <asp:ListItem Text="Rejected" Value="Rejected" />
                                     <asp:ListItem Text="All" Value="" />
                                 </asp:DropDownList>
                             </div>
@@ -133,18 +136,18 @@
                                             <asp:GridView ID="GVCompany" runat="server" HeaderStyle-HorizontalAlign="Center" CssClass="display table table-striped table-hover" AutoGenerateColumns="false">
                                                 <HeaderStyle BackColor="#2d6be0" />
                                                 <Columns>
-                                                    <asp:TemplateField HeaderText="Sr.No." HeaderStyle-ForeColor="White"  ItemStyle-HorizontalAlign="Center">
+                                                    <asp:TemplateField HeaderText="Sr.No." HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center">
                                                         <ItemTemplate>
                                                             <asp:Label ID="lblsnos" runat="server" Text='<%# Container.DataItemIndex+1 %>'></asp:Label>
                                                         </ItemTemplate>
                                                     </asp:TemplateField>
-                                                    <asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="White"  DataField="ProductName" HeaderText="Product Name" />
-                                                    <asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="White"  DataField="Description" HeaderText="Description" />
-                                                    <asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="White"  DataField="Size" HeaderText="Size" />
-                                                    <asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="White"  DataField="Unit" HeaderText="Unit" />
-                                                    <asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="White"  DataField="Qty" HeaderText="Qty" />
-                                                    <asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="White"  DataField="SqFeet" HeaderText="Sq Feet" />
-                                                    <asp:TemplateField HeaderText="Custom Image" HeaderStyle-ForeColor="White"  ItemStyle-HorizontalAlign="Center">
+                                                    <asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="White" DataField="ProductName" HeaderText="Product Name" />
+                                                    <asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="White" DataField="Description" HeaderText="Description" />
+                                                    <asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="White" DataField="Size" HeaderText="Size" />
+                                                    <asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="White" DataField="Unit" HeaderText="Unit" />
+                                                    <asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="White" DataField="Qty" HeaderText="Qty" />
+                                                    <asp:BoundField ItemStyle-HorizontalAlign="Center" HeaderStyle-ForeColor="White" DataField="SqFeet" HeaderText="Sq Feet" />
+                                                    <asp:TemplateField HeaderText="Custom Image" HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center">
                                                         <ItemTemplate>
                                                             <div class="image-hover-container">
                                                                 <asp:Image ID="imG" runat="server"
@@ -167,32 +170,32 @@
                                         </asp:Panel>
                                     </ItemTemplate>
                                 </asp:TemplateField>
-                                <asp:TemplateField HeaderText="Sr.No." HeaderStyle-ForeColor="White"  ItemStyle-HorizontalAlign="Center">
+                                <asp:TemplateField HeaderText="Sr.No." HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center">
                                     <ItemTemplate>
                                         <asp:Label ID="lblsno" runat="server" Text='<%# Container.DataItemIndex+1 %>'></asp:Label>
                                     </ItemTemplate>
                                 </asp:TemplateField>
-                                <asp:TemplateField HeaderText="Tally Ref No." HeaderStyle-ForeColor="White"  ItemStyle-HorizontalAlign="Center">
+                                <asp:TemplateField HeaderText="Tally Ref No." HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center">
                                     <ItemTemplate>
                                         <asp:Label ID="lblTallyRefNo" runat="server" ForeColor="Red" Font-Bold="true" Text='<%#Eval("TallyRefNo")%>'></asp:Label>
                                     </ItemTemplate>
                                 </asp:TemplateField>
-                                <asp:TemplateField HeaderText="WorkOrder Date" HeaderStyle-ForeColor="White"  ItemStyle-HorizontalAlign="Center">
+                                <asp:TemplateField HeaderText="WorkOrder Date" HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center">
                                     <ItemTemplate>
                                         <asp:Label ID="lblWorkOrderDate" runat="server" Text='<%#Eval("WorkOrderDate")%>'></asp:Label>
                                     </ItemTemplate>
                                 </asp:TemplateField>
-                                <asp:TemplateField HeaderText="Dealer" HeaderStyle-ForeColor="White"  ItemStyle-HorizontalAlign="Center">
+                                <asp:TemplateField HeaderText="Dealer" HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center">
                                     <ItemTemplate>
                                         <asp:Label ID="lblDealer" runat="server" Text='<%#Eval("Dealer")%>'></asp:Label>
                                     </ItemTemplate>
                                 </asp:TemplateField>
-                                <asp:TemplateField HeaderText="Customer Name" HeaderStyle-ForeColor="White"  ItemStyle-HorizontalAlign="Center">
+                                <asp:TemplateField HeaderText="Customer Name" HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center">
                                     <ItemTemplate>
                                         <asp:Label ID="lblCustomerName" runat="server" Text='<%#Eval("CustomerName")%>'></asp:Label>
                                     </ItemTemplate>
                                 </asp:TemplateField>
-                                <asp:TemplateField HeaderText="Attachment" HeaderStyle-ForeColor="White"  ItemStyle-HorizontalAlign="Center">
+                                <asp:TemplateField HeaderText="Attachment" HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center">
                                     <ItemTemplate>
                                         <asp:LinkButton ID="btn_View_aattach" runat="server" CommandName="RowPO" CommandArgument='<%# Eval("AttachmentPath") %>'
                                             ForeColor='<%# string.IsNullOrEmpty(Convert.ToString(Eval("AttachmentPath"))) ? System.Drawing.Color.Red : System.Drawing.Color.FromArgb(13,110,253) %>'
@@ -200,64 +203,82 @@
                                             ToolTip="Open File"><i class="bi-file-earmark-medical"  style="font-size:26px;"></i></asp:LinkButton>
                                     </ItemTemplate>
                                 </asp:TemplateField>
-                                <asp:TemplateField HeaderText="ACTION" HeaderStyle-ForeColor="White"  ItemStyle-HorizontalAlign="Center">
+                                <asp:TemplateField HeaderText="Design Status" ItemStyle-Width="150" HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center">
+                                    <ItemTemplate>
+                                        <asp:Label ID="lblDesignStatus" runat="server" Font-Bold="true" ForeColor='<%#
+                                                 (Convert.ToBoolean(Eval("isdesignapproved")) && Convert.ToBoolean(Eval("SendForDesign")))
+                                                     ? System.Drawing.ColorTranslator.FromHtml("#f36700")
+                                                     : (!Convert.ToBoolean(Eval("isdesignapproved")) && Convert.ToBoolean(Eval("SendForDesign")))
+                                                         ? System.Drawing.ColorTranslator.FromHtml("#0064FF")
+                                                         : System.Drawing.Color.Red
+                                             %>'
+                                            Text='<%#Eval("DesignerStatus")%>'></asp:Label>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                                <asp:TemplateField HeaderText="ACTION" HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center">
                                     <ItemTemplate>
                                         <asp:LinkButton ID="btApproved" runat="server"
                                             ToolTip="Approve" CommandName="Approved"
                                             CommandArgument='<%#Eval("ID")%>'
                                             CssClass="btn btn-outline-info btn-sm"
                                             Visible='<%#
-                                                 !(Convert.ToBoolean(Eval("isdesignapproved")) ||
-                                                   Convert.ToBoolean(Eval("HoldStatus")) ||
-                                                   Convert.ToBoolean(Eval("CancelStatus")))
-                                             %>'>
+                                                !Convert.ToBoolean(Eval("HoldStatus")) &&
+                                                !Convert.ToBoolean(Eval("CancelStatus")) &&
+                                                !Convert.ToBoolean(Eval("isdesignapproved")) &&
+                                                Convert.ToBoolean(Eval("SendForDesign"))
+                                            %>'>
                                             <i class="bi bi-check-lg"></i>
                                         </asp:LinkButton>
                                         &nbsp;&nbsp;
+                                       
                                         <asp:LinkButton ID="btDisapproved" runat="server"
                                             ToolTip="Disapprove"
                                             CommandName="DisApproved"
                                             CommandArgument='<%# Eval("ID") %>'
                                             CssClass="btn btn-outline-danger btn-sm"
                                             Visible='<%#
-                                                 !(Convert.ToBoolean(Eval("isdesignapproved")) ||
-                                                   Convert.ToBoolean(Eval("HoldStatus")) ||
-                                                   Convert.ToBoolean(Eval("CancelStatus")))
-                                             %>'>
+                                                !Convert.ToBoolean(Eval("HoldStatus")) &&
+                                                !Convert.ToBoolean(Eval("CancelStatus")) &&
+                                                !Convert.ToBoolean(Eval("isdesignapproved")) &&
+                                                Convert.ToBoolean(Eval("SendForDesign"))
+                                            %>'>
                                              <i class="bi bi-x-lg"></i>
                                         </asp:LinkButton>
-                                        &nbsp;&nbsp;
+
                                         <asp:LinkButton ID="btRevoke" runat="server"
                                             ToolTip="Revoke Design"
                                             CommandName="DisRevoke"
                                             CommandArgument='<%# Eval("ID") %>'
                                             CssClass="btn btn-outline-primary btn-sm"
                                             Visible='<%#
-                                                 (Convert.ToBoolean(Eval("isdesignapproved")) && !Convert.ToBoolean(Eval("ProductionCheck")))
+                                                 (!Convert.ToBoolean(Eval("HoldStatus")) && !Convert.ToBoolean(Eval("CancelStatus")) 
+                                                 &&Convert.ToBoolean(Eval("isdesignapproved")) && !Convert.ToBoolean(Eval("ProductionCheck")))
                                              %>'>
-                                             Revoke
+                                             <i><small>Revoke</small></i>
                                         </asp:LinkButton>
 
                                         <asp:Label ID="lblStatus"
                                             runat="server"
                                             Font-Bold="true"
                                             Visible='<%#
-                                                 Convert.ToBoolean(Eval("CancelStatus")) ||
-                                                 Convert.ToBoolean(Eval("HoldStatus")) ||
-                                                 Convert.ToBoolean(Eval("ProductionCheck"))
-                                             %>'
+                                                Convert.ToBoolean(Eval("CancelStatus")) ||
+                                                Convert.ToBoolean(Eval("HoldStatus")) ||
+                                                Convert.ToBoolean(Eval("ProductionCheck")) ||
+                                                (!Convert.ToBoolean(Eval("SendForDesign")) && !Convert.ToBoolean(Eval("isdesignapproved")))
+                                            %>'
                                             Text='<%#
-                                                 Convert.ToBoolean(Eval("CancelStatus")) ? "Canceled" :
-                                                 Convert.ToBoolean(Eval("HoldStatus")) ? "On Hold" :
-                                                 Convert.ToBoolean(Eval("ProductionCheck")) ? "In Production" :
-                                                 "Not Approved"
-                                             %>'
+                                                Convert.ToBoolean(Eval("CancelStatus")) ? "<i><small>W/O Canceled</small></i>" :
+                                                Convert.ToBoolean(Eval("HoldStatus")) ? "<i><small>W/O On Hold</small></i>" :
+                                                Convert.ToBoolean(Eval("ProductionCheck")) ? "<i><small>W/O In Production</small></i>" :
+                                                (!Convert.ToBoolean(Eval("SendForDesign")) && !Convert.ToBoolean(Eval("isdesignapproved"))) ? "<i><small>W/O Rejected from Designer</small></i>" :
+                                                ""
+                                            %>'
                                             ForeColor='<%#
-                                                 Convert.ToBoolean(Eval("CancelStatus")) ? System.Drawing.Color.Red :
-                                                 Convert.ToBoolean(Eval("HoldStatus")) ? System.Drawing.Color.Orange :
-                                                 Convert.ToBoolean(Eval("ProductionCheck")) ? System.Drawing.Color.BlueViolet :
-                                                 System.Drawing.Color.Green
-                                             %>'>
+                                                Convert.ToBoolean(Eval("CancelStatus")) ? System.Drawing.Color.Red :
+                                                Convert.ToBoolean(Eval("HoldStatus")) ? System.Drawing.Color.Orange :
+                                                Convert.ToBoolean(Eval("ProductionCheck")) ? System.Drawing.Color.BlueViolet :
+                                                System.Drawing.Color.Red
+                                            %>'>
                                         </asp:Label>
                                     </ItemTemplate>
                                 </asp:TemplateField>

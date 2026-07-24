@@ -1,8 +1,11 @@
-﻿using System;
+﻿using OfficeOpenXml;
+using OfficeOpenXml.Style;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Drawing;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
@@ -91,6 +94,171 @@ public partial class Dashboard : System.Web.UI.Page
 
         return dt;
     }
+
+    [WebMethod]
+    public static object GetOrderDetails(string fromDate, string toDate, string type)
+    {
+        DataTable dt = new DataTable();
+
+        string connStr = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+
+        try
+        {
+            using (SqlConnection con = new SqlConnection(connStr))
+            using (SqlCommand cmd = new SqlCommand("SP_DashboardDetails", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@FromDate", fromDate);
+                cmd.Parameters.AddWithValue("@ToDate", toDate);
+                cmd.Parameters.AddWithValue("@Type", type);
+                cmd.Parameters.AddWithValue("@SP_Action","GetOrderDetails");
+
+                using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                {
+                    da.Fill(dt);
+                }
+            }
+
+            List<Dictionary<string, object>> rows = new List<Dictionary<string, object>>();
+
+            foreach (DataRow row in dt.Rows)
+            {
+                Dictionary<string, object> rowDict = new Dictionary<string, object>();
+
+                foreach (DataColumn col in dt.Columns)
+                {
+                    rowDict[col.ColumnName] = row[col] == DBNull.Value ? null : row[col];
+                }
+
+                rows.Add(rowDict);
+            }
+
+            return rows;
+        }
+        catch (Exception ex)
+        {
+            // Log ex the same way GetDashboard does
+            return new { Error = true, Message = ex.Message };
+        }
+    }
+
+
+    [WebMethod]
+    public static object GetOrderDetailsExcel(string fromDate, string toDate, string type)
+    {
+        DataTable dt = new DataTable();
+        string connStr = ConfigurationManager.ConnectionStrings["constr"].ConnectionString;
+
+        using (SqlConnection con = new SqlConnection(connStr))
+        using (SqlCommand cmd = new SqlCommand("SP_DashboardDetails", con))
+        {
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@FromDate", fromDate);
+            cmd.Parameters.AddWithValue("@ToDate", toDate);
+            cmd.Parameters.AddWithValue("@Type", type);
+            cmd.Parameters.AddWithValue("@SP_Action", "GetOrderDetails");
+
+            using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+            {
+                da.Fill(dt);
+            }
+        }
+
+        var plainColumns = new[] { "W/O No.", "W/O Date", "Estimated Delivery Date", "ScheduledDate" };
+
+        using (var package = new ExcelPackage())
+        {
+            var ws = package.Workbook.Worksheets.Add("Orders");
+
+            // Header row
+            for (int col = 0; col < dt.Columns.Count; col++)
+            {
+                var cell = ws.Cells[1, col + 1];
+                cell.Value = dt.Columns[col].ColumnName;
+                cell.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                cell.Style.Fill.BackgroundColor.SetColor(Color.Black);
+                cell.Style.Font.Color.SetColor(Color.White);
+                cell.Style.Font.Bold = true;
+                cell.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            }
+
+            // Data rows
+            for (int row = 0; row < dt.Rows.Count; row++)
+            {
+                for (int col = 0; col < dt.Columns.Count; col++)
+                {
+                    string colName = dt.Columns[col].ColumnName;
+                    string val = !string.IsNullOrWhiteSpace(dt.Rows[row][col].ToString()) ? dt.Rows[row][col].ToString() : "";
+
+                    var cell = ws.Cells[row + 2, col + 1];
+                    cell.Value = val;
+                    cell.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    cell.Style.Font.Bold = true;
+
+                    if (Array.IndexOf(plainColumns, colName) < 0)
+                    {
+                        cell.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        cell.Style.Fill.BackgroundColor.SetColor(ColorTranslator.FromHtml(GetBadgeHex(val)));
+                        cell.Style.Font.Color.SetColor(Color.White);
+                    }
+                }
+            }
+
+            ws.Cells[ws.Dimension.Address].AutoFitColumns();
+
+            byte[] fileBytes = package.GetAsByteArray();
+            string base64 = Convert.ToBase64String(fileBytes);
+
+            return new
+            {
+                FileName = type.Replace(" ", "_") + "_" + DateTime.Now.ToString("yyyy-MM-dd") + ".xlsx",
+                FileContent = base64
+            };
+        }
+    }
+
+    private static string GetBadgeHex(string status)
+    {
+        switch (status)
+        {
+            case "W/O On Hold":
+            case "Send For Design Approval":
+            case "Not Scheduled":
+            case "Work Started":
+            case "Partially Active":
+            case "Production Pending":
+            case "In Production":
+            case "Pending":
+            case "Out For Delivery":
+                return "#E8A33D";
+
+            case "W/O Canceled":
+            case "Rejected From Designer":
+            case "Rejected":
+            case "Work Not Started":
+            case "W/O Not Allocated":
+            case "Not Packed":
+            case "Not Dispatched":
+                return "#E5566D";
+
+            case "Approved From Designer":
+            case "Approved":
+            case "Scheduled":
+            case "Completed":
+            case "Packed":
+            case "Production Completed":
+            case "Delivered":
+                return "#1FA97A";
+
+            case "Active":
+            case "Dispatched":
+                return "#2AAFD6";
+
+            default:
+                return "#6b7280";
+        }
+    }
+
 
     [WebMethod]
     public static List<Dictionary<string, object>> GetNotifications()

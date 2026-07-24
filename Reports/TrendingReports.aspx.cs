@@ -24,12 +24,12 @@ public partial class Reports_TrendingReports : System.Web.UI.Page
         }
         else
         {
-           
+            //Check if you has access to the page of not
             {
                 string username = Session["ID"].ToString();
                 using (SqlConnection cons = new SqlConnection(ConfigurationManager.ConnectionStrings["constr"].ConnectionString))
                 {
-                    string query = @"SELECT PageAccess FROM tbl_UserRoleAuthorization WHERE UserID = @UserID AND PageName = 'ProductionTrackingReports.aspx'";
+                    string query = @"SELECT PageAccess FROM tbl_UserRoleAuthorization WHERE UserID = @UserID AND PageName = 'TrendingReports.aspx'";
                     SqlCommand cmds = new SqlCommand(query, cons);
                     cmds.Parameters.AddWithValue("@UserID", username);
                     cons.Open();
@@ -92,7 +92,6 @@ public partial class Reports_TrendingReports : System.Web.UI.Page
         FillGrid();
     }
 
-
     private void FillGrid()
     
     {
@@ -134,8 +133,6 @@ public partial class Reports_TrendingReports : System.Web.UI.Page
             Response.Write(ex.Message);
         }
     }
-
-
 
     [ScriptMethod()]
     [WebMethod]

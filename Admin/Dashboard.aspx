@@ -1,4 +1,4 @@
-<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" EnableEventValidation="false" AutoEventWireup="true" Async="true" CodeFile="Dashboard.aspx.cs" Inherits="Dashboard" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" EnableEventValidation="false" AutoEventWireup="true" Async="true" CodeFile="Dashboard.aspx.cs" Inherits="Dashboard" %>
 
 <%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="asp" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="Server">
@@ -8,14 +8,13 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <style type="text/css">
         .dashboard {
-            padding: 25px;
             background: #f5f7fb;
         }
 
         .dashboard-card {
             background: #fff;
             border-radius: 18px;
-            padding: 22px;
+            padding: 20px;
             box-shadow: inset 7px 0px 3px 0px rgb(27 70 157);
             margin-bottom: 27px;
             transition: .3s;
@@ -209,6 +208,101 @@
             border-radius: 7px;
             padding: 0px 6px;
         }
+
+        .order-clickable {
+            cursor: pointer;
+            transition: color .15s ease;
+        }
+
+            .order-clickable:hover {
+                color: #1FA97A;
+            }
+
+
+        /*Modal*/
+        .orders-modal-dialog .modal-content {
+            max-height: 85vh;
+            max-height: 85dvh;
+        }
+
+        .orders-modal-dialog .modal-body {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
+            max-height: calc(85vh - 60px);
+            max-height: calc(85dvh - 60px);
+        }
+
+        .orders-table {
+            border-collapse: collapse;
+        }
+
+            .orders-table th,
+            .orders-table td {
+                border: 1px solid #333 !important;
+                white-space: nowrap;
+                padding: 8px 12px;
+                text-align: center;
+            }
+
+            .orders-table thead th {
+                background-color: #3458a5;
+                color: #ffffff;
+                font-weight: 700;
+                position: sticky;
+                top: 0;
+                z-index: 1;
+            }
+
+        @media (max-width: 700px) {
+            .orders-modal-dialog .modal-content {
+                max-height: 90vh;
+                max-height: 90dvh;
+            }
+
+            .orders-modal-dialog .modal-body {
+                max-height: calc(90vh - 56px);
+                max-height: calc(90dvh - 56px);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .card-top {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .icon-box {
+                margin-right: 0;
+                margin-bottom: 12px;
+            }
+
+            .card-content {
+                width: 100%;
+            }
+
+            /* Keep the down-time machine badges centered under the icon too */
+            #divMachineStatus {
+                display: flex;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+
+            /* List items and the total strip read better centered on narrow cards */
+            .list-item {
+                text-align: center;
+            }
+
+            .total-down-time,
+            .total-productivity,
+            .total-orders {
+                flex-direction: column;
+                text-align: center;
+                gap: 4px;
+            }
+        }
     </style>
     <script type="text/javascript">
 
@@ -395,8 +489,8 @@
         }
 
         function bindDownTime(data) {
-
             var html = "";
+            var machineStatusHtml = "";
             var totalSeconds = 0;
 
             $.each(data, function (index, item) {
@@ -407,12 +501,16 @@
             </div>
         `;
 
+                machineStatusHtml += `
+            ${item.MachineStatus}
+        `;
+
                 totalSeconds += parseInt(item.TotalDownSeconds || 0);
             });
 
             $("#divDownTime").html(html);
+            $("#divMachineStatus").html(machineStatusHtml);
 
-            // Convert total seconds to HH:mm:ss
             var hours = Math.floor(totalSeconds / 3600);
             var minutes = Math.floor((totalSeconds % 3600) / 60);
             var seconds = totalSeconds % 60;
@@ -463,6 +561,240 @@
             var item = data[0];
             $("#lblDealerCount").text(item.DealersCount || 0);
         }
+
+        var lastOrdersData = [];
+        var lastOrdersType = "";
+
+        function showOrdersModal(type) {
+            $("#ordersModalTitle").text(type);
+            $("#ordersModalBody").html("<div class='text-center py-3'>Loading...</div>");
+
+            lastOrdersData = [];
+            lastOrdersType = type;
+
+            var modal = new bootstrap.Modal(document.getElementById('ordersModal'));
+            modal.show();
+
+            $.ajax({
+                type: "POST",
+                url: "Dashboard.aspx/GetOrderDetails",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                data: JSON.stringify({
+                    fromDate: $("#txtFromDate").val(),
+                    toDate: $("#txtToDate").val(),
+                    type: type
+                }),
+                success: function (response) {
+                    var data = response.d;
+
+                    if (!data || data.length === 0) {
+                        $("#ordersModalBody").html("<div class='text-center text-muted py-3'>No records found</div>");
+                        return;
+                    }
+
+                    lastOrdersData = data;
+
+                    var columns = Object.keys(data[0]);
+
+                    var html = "<div class='table-responsive'><table class='table table-sm table-bordered align-middle text-center orders-table'><thead><tr>";
+
+                    $.each(columns, function (i, col) {
+                        html += "<th>" + col + "</th>";
+                    });
+
+                    html += "</tr></thead><tbody>";
+
+                    $.each(data, function (i, item) {
+                        html += "<tr>";
+
+                        $.each(columns, function (j, col) {
+                            var val = item[col];
+
+                            if (plainColumns.indexOf(col) > -1) {
+                                html += "<td><strong>" + formatDate(val) + "</strong></td>";
+                            } else {
+                                html += "<td>" + statusBadge(val) + "</td>";
+                            }
+                        });
+
+                        html += "</tr>";
+                    });
+
+                    html += "</tbody></table></div>";
+
+                    $("#ordersModalBody").html(html);
+                },
+                error: function (xhr) {
+                    $("#ordersModalBody").html("<div class='text-center text-danger py-3'>Failed to load</div>");
+                    console.log(xhr.responseText);
+                }
+            });
+        }
+
+        function badgeColorHex(status) {
+            // Reuses the same lookup logic as statusBadge, but returns just the hex for cell background
+            if (status === null || status === undefined || status === "") {
+                status = "-";
+            }
+
+            var exactColorMap = {
+                "W/O On Hold": "#E8A33D", "W/O Canceled": "#E5566D", "-": "#9CA3AF",
+                "Send For Design Approval": "#E8A33D", "Approved From Designer": "#1FA97A",
+                "Rejected From Designer": "#E5566D", "Approved": "#1FA97A", "Rejected": "#E5566D",
+                "Pending": "#E8A33D", "Not Scheduled": "#E8A33D", "Scheduled": "#1FA97A",
+                "Work Not Started": "#E5566D", "Work Started": "#E8A33D", "W/O Not Allocated": "#E5566D",
+                "Partially Active": "#E8A33D", "Active": "#2AAFD6", "Completed": "#1FA97A",
+                "Not Packed": "#E5566D", "Packed": "#1FA97A", "Production Pending": "#E5566D",
+                "In Production": "#E8A33D", "Production Completed": "#1FA97A", "Not Dispatched": "#E5566D",
+                "Dispatched": "#2AAFD6", "Out For Delivery": "#E8A33D", "Delivered": "#1FA97A"
+            };
+
+            var bg = exactColorMap[status];
+
+            if (!bg) {
+                var s = status.toLowerCase();
+                if (s.indexOf("not ") === 0 || s.indexOf("reject") > -1 || s.indexOf("cancel") > -1 || s.indexOf("hold") > -1) {
+                    bg = "#E5566D";
+                } else if (s.indexOf("complet") > -1 || s.indexOf("approved") > -1 || s.indexOf("delivered") > -1 || s.indexOf("packed") > -1 || s.indexOf("scheduled") > -1) {
+                    bg = "#1FA97A";
+                } else if (s.indexOf("pending") > -1 || s.indexOf("progress") > -1 || s.indexOf("partial") > -1 || s.indexOf("started") > -1) {
+                    bg = "#E8A33D";
+                } else {
+                    bg = "#6b7280";
+                }
+            }
+
+            return bg;
+        }
+
+        function downloadOrdersExcel() {
+            if (!lastOrdersType) {
+                alert("Open a report first.");
+                return;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "Dashboard.aspx/GetOrderDetailsExcel",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                data: JSON.stringify({
+                    fromDate: $("#txtFromDate").val(),
+                    toDate: $("#txtToDate").val(),
+                    type: lastOrdersType
+                }),
+                success: function (response) {
+                    var result = response.d;
+
+                    var byteCharacters = atob(result.FileContent);
+                    var byteNumbers = new Array(byteCharacters.length);
+
+                    for (var i = 0; i < byteCharacters.length; i++) {
+                        byteNumbers[i] = byteCharacters.charCodeAt(i);
+                    }
+
+                    var byteArray = new Uint8Array(byteNumbers);
+                    var blob = new Blob([byteArray], {
+                        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    });
+
+                    var link = document.createElement("a");
+                    link.href = URL.createObjectURL(blob);
+                    link.download = result.FileName;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                },
+                error: function (xhr) {
+                    console.log(xhr.responseText);
+                    alert("Failed to generate Excel file.");
+                }
+            });
+        }
+
+
+        function formatDate(val) {
+            if (typeof val === "string") {
+                var match = /\/Date\((\d+)\)\//.exec(val);
+                if (match) {
+                    return new Date(parseInt(match[1], 10)).toLocaleDateString();
+                }
+            }
+            return val;
+        }
+
+        // Columns that should stay as plain text/dates — everything else gets a badge
+        var plainColumns = ["W/O No.", "W/O Date", "Estimated Delivery Date", "ScheduledDate"];
+
+        function statusBadge(status) {
+            if (status === null || status === undefined || status === "") {
+                status = "-";
+            }
+
+            var exactColorMap = {
+                // Hold / Cancel
+                "W/O On Hold": "#E8A33D",
+                "W/O Canceled": "#E5566D",
+                "-": "#9CA3AF",
+
+                // Design
+                "Send For Design Approval": "#E8A33D",
+                "Approved From Designer": "#1FA97A",
+                "Rejected From Designer": "#E5566D",
+                "Approved": "#1FA97A",
+                "Rejected": "#E5566D",
+                "Pending": "#E8A33D",
+
+                // Scheduling
+                "Not Scheduled": "#E8A33D",
+                "Scheduled": "#1FA97A",
+
+                // Stage 1 / Stage 2
+                "Work Not Started": "#E5566D",
+                "Work Started": "#E8A33D",
+                "W/O Not Allocated": "#E5566D",
+                "Partially Active": "#E8A33D",
+                "Active": "#2AAFD6",
+                "Completed": "#1FA97A",
+
+                // Packaging
+                "Not Packed": "#E5566D",
+                "Packed": "#1FA97A",
+
+                // Production
+                "Production Pending": "#E5566D",
+                "In Production": "#E8A33D",
+                "Production Completed": "#1FA97A",
+
+                // Dispatch / final status
+                "Not Dispatched": "#E5566D",
+                "Dispatched": "#2AAFD6",
+                "Out For Delivery": "#E8A33D",
+                "Delivered": "#1FA97A"
+            };
+
+            var bg = exactColorMap[status];
+
+            // Fallback for raw values coming straight from MH.S1Status / MH.S2Status
+            // that aren't in the exact map above (e.g. "Machine Allocated", custom stage names)
+            if (!bg) {
+                var s = status.toLowerCase();
+
+                if (s.indexOf("not ") === 0 || s.indexOf("reject") > -1 || s.indexOf("cancel") > -1 || s.indexOf("hold") > -1) {
+                    bg = "#E5566D"; // red
+                } else if (s.indexOf("complet") > -1 || s.indexOf("approved") > -1 || s.indexOf("delivered") > -1 || s.indexOf("packed") > -1 || s.indexOf("scheduled") > -1) {
+                    bg = "#1FA97A"; // green — completed states always win here
+                } else if (s.indexOf("pending") > -1 || s.indexOf("progress") > -1 || s.indexOf("partial") > -1 || s.indexOf("started") > -1) {
+                    bg = "#E8A33D"; // amber
+                } else {
+                    bg = "#6b7280"; // grey fallback
+                }
+            }
+
+            return "<span style='background:" + bg + "; color:#fff; padding:3px 10px; border-radius:12px; font-size:13px; font-weight:600; white-space:nowrap; display:inline-block;'>" +
+                status + "</span>";
+        }
     </script>
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
@@ -471,11 +803,11 @@
         <ContentTemplate>
             <div class="container-fluid dashboard" runat="server" visible="false" id="divAdmin">
                 <div class="row mb-3 justify-content-center dashboard-filter">
-                    <div class="col-md-2">
+                    <div class="col-12 col-md-2 mb-2 mb-md-0">
                         <input type="date" id="txtFromDate" class="form-control dark-filter" />
                     </div>
 
-                    <div class="col-md-2">
+                    <div class="col-12 col-md-2 mb-2 mb-md-0">
                         <input type="date" id="txtToDate" class="form-control dark-filter" />
                     </div>
 
@@ -664,6 +996,7 @@
                                     <div class="card-title">
                                         Down Time 
                                     </div>
+                                    <div id="divMachineStatus" class="mt-1"></div>
                                     <div id="divDownTime"></div>
                                 </div>
                             </div>
@@ -701,21 +1034,21 @@
                                     <div class="card-title">
                                         Orders
                                     </div>
-                                    <div class="list-item">
+                                    <div class="list-item order-clickable" onclick="showOrdersModal('New Orders')">
                                         New Orders -
                                          <span id="lblNewOrders">0</span>
                                     </div>
-                                    <div class="list-item">
+                                    <div class="list-item order-clickable" onclick="showOrdersModal('Pending Orders')">
                                         Pending Orders -
                                        <span id="lblPendingOrders">0</span>
                                     </div>
-                                    <div class="list-item">
+                                    <div class="list-item order-clickable" onclick="showOrdersModal('Over Due Orders')">
                                         Over Due Orders -
                                        <span id="lblOverDueOrders">0</span>
                                     </div>
                                 </div>
                             </div>
-                            <div class="total-orders">
+                            <div class="total-orders order-clickable" onclick="showOrdersModal('Total Orders')">
                                 Total Orders:
                                 <span id="lblTotalOrders"></span>
                             </div>
@@ -739,6 +1072,25 @@
                                 Work Order Dispatch Trend
                             </div>
                             <canvas id="dispatchChart" height="120"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Modal -->
+            <div class="modal fade" id="ordersModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable orders-modal-dialog">
+                    <div class="modal-content" style="border-radius: 14px; border: none;">
+                        <div class="modal-header" style="border-bottom: 1px solid #eef0f5; justify-content: flex-start;">
+                            <h5 class="modal-title flex-grow-1" style="font-weight: 700; color: #1c2033;"
+                                id="ordersModalTitle"></h5>
+                            <button id="btnDownloadOrdersExcel" type="button" class="btn btn-success btn-sm me-2" onclick="downloadOrdersExcel()">
+                                <i class="bi bi-file-earmark-excel"></i>Download Excel
+                            </button>
+                            <button type="button" class="btn btn-danger btn-sm" data-bs-dismiss="modal" aria-label="Close">X</button>
+                        </div>
+                        <div class="modal-body" id="ordersModalBody">
+                            <!-- filled by JS -->
                         </div>
                     </div>
                 </div>

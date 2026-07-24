@@ -2,65 +2,11 @@
 
 <%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="asp" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="Server">
-    <style type="text/css">
-        .completionList {
-            scroll-behavior: smooth;
-            border: solid 1px Gray;
-            border-radius: 0 0 6px 6px;
-            margin: 0px;
-            padding: 3px;
-            height: 200px;
-            overflow: auto;
-            width: 500px;
-            background-color: #FFFFFF;
-            font-size: 16px;
-        }
-
-        .listItem {
-            color: #191919;
-        }
-
-        .itemHighlighted {
-            background-color: #5b78b1;
-            font-weight: 900;
-        }
-
-        .completionList {
-            scroll-behavior: smooth;
-            border: solid 1px Gray;
-            border-radius: 0 0 6px 6px;
-            margin: 0px;
-            padding: 3px;
-            height: 200px;
-            overflow: auto;
-            width: 500px;
-            background-color: #FFFFFF;
-            font-size: 16px;
-        }
-
-        .listItem {
-            color: #191919;
-        }
-
-        .itemHighlighted {
-            background-color: #5b78b1;
-            font-weight: 900;
-        }
-
-        .error-border {
-            border: 2px solid red !important;
-        }
-
-        .error-msg {
-            min-height: 14px;
-            margin-top: 2px;
-        }
-    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </asp:Content>
 
-
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
-    <asp:ToolkitScriptManager ID="ToolkitScriptManager1" runat="server"></asp:ToolkitScriptManager>
+    <asp:ScriptManager ID="ToolkitScriptManager1" runat="server"></asp:ScriptManager>
     <asp:UpdatePanel ID="UpdatePanel1" runat="server">
         <ContentTemplate>
             <div class="card">
@@ -73,21 +19,20 @@
                     <div class="table-responsive">
                         <br />
                         <asp:GridView ID="GvMachineBreak" runat="server"
-                            AutoGenerateColumns="False"
-                            EmptyDataText="Record Not Found"
-                            CssClass="table table-bordered">
+                            AutoGenerateColumns="False" HeaderStyle-BackColor="#2d6be0"
+                            HeaderStyle-Font-Bold="true" HeaderStyle-HorizontalAlign="Center"
+                            EmptyDataText="Record Not Found" CssClass="table table-bordered table-striped">
                             <Columns>
-                                <asp:BoundField DataField="MachineName" HeaderText="MachineName" />
-                                <asp:BoundField DataField="OldRunningHR" HeaderText="Old RunningHR" />
-                                <asp:BoundField DataField="CurrentRunningHR" HeaderText="Current RunningHR" />
-                                <asp:BoundField DataField="ExtraHours" HeaderText="Extra Hours" />
+                                <asp:BoundField DataField="MachineName" HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center"  HeaderText="MachineName" />
+                                <asp:BoundField DataField="OldRunningHR" HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center"  HeaderText="Old RunningHR" />
+                                <asp:BoundField DataField="CurrentRunningHR" HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center"  HeaderText="Current RunningHR" />
+                                <asp:BoundField DataField="ExtraHours" HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center"  HeaderText="Extra Hours" />
                                 <asp:BoundField
                                     DataField="ExtraWorkDate"
-                                    HeaderText="Extra Work Date"
+                                    HeaderText="Extra Work Date"  HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center" 
                                     DataFormatString="{0:dd-MM-yyyy}"
                                     HtmlEncode="false" />
                             </Columns>
-
                         </asp:GridView>
                     </div>
                 </div>

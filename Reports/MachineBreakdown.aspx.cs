@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
-using System.Linq;
-using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
@@ -26,7 +23,7 @@ public partial class Reports_MachineBreakdown : System.Web.UI.Page
                 string username = Session["ID"].ToString();
                 using (SqlConnection cons = new SqlConnection(ConfigurationManager.ConnectionStrings["constr"].ConnectionString))
                 {
-                    string query = @"SELECT PageAccess FROM tbl_UserRoleAuthorization WHERE UserID = @UserID AND PageName = 'ProductionTrackingReports.aspx'";
+                    string query = @"SELECT PageAccess FROM tbl_UserRoleAuthorization WHERE UserID = @UserID AND PageName = 'MachineBreakdown.aspx'";
                     SqlCommand cmds = new SqlCommand(query, cons);
                     cmds.Parameters.AddWithValue("@UserID", username);
                     cons.Open();
@@ -102,7 +99,7 @@ public partial class Reports_MachineBreakdown : System.Web.UI.Page
                         DataTable dt = new DataTable();
                         da.Fill(dt);
 
-                        GvMachineBreak .DataSource = dt;
+                        GvMachineBreak.DataSource = dt;
                         GvMachineBreak.DataBind();
                     }
                 }

@@ -111,10 +111,13 @@
                                     <asp:ListItem Text="All" Value="0" />
                                 </asp:DropDownList>
                             </div>
-                            <div style="width: 150px;">
+                            <div style="width: 200px;">
                                 <asp:DropDownList ID="ddlWOStatus" runat="server" CssClass="form-control" AutoPostBack="true" Font-Bold="true" OnSelectedIndexChanged="ddlPageSize_SelectedIndexChanged">
-                                    <asp:ListItem Text="Not Approved" Value="Assigned" Selected="True" />
-                                    <asp:ListItem Text="Approved" Value="Completed" />
+                                    <asp:ListItem Text="Sent for Approval" Value="Assigned" Selected="True" />
+                                    <asp:ListItem Text="Design Approved" Value="Completed" />
+                                    <asp:ListItem Text="Design Rejected" Value="Rejected" />
+                                    <asp:ListItem Text="W/O On Hold" Value="W/O On Hold" />
+                                    <asp:ListItem Text="W/O Canceled" Value="W/O Canceled" />
                                     <asp:ListItem Text="All" Value="" />
                                 </asp:DropDownList>
                             </div>
@@ -151,14 +154,14 @@
                                                                 <asp:Image ID="imG" runat="server"
                                                                     ImageUrl='<%# !string.IsNullOrEmpty(Convert.ToString(Eval("UploadedImage"))) 
                                                                     ? Convert.ToString(Eval("UploadedImage")).Replace("~/", "/Content/") 
-                                                                    : "https://placehold.co/100x100?text=Image" %>'
+                                                                    : "https://placehold.co/100x100?text=" + Convert.ToString(Eval("Productname")) %>'
                                                                     CssClass="product-image-preview" />
 
                                                                 <div class="image-popup">
                                                                     <asp:Image ID="imgLarge" runat="server"
                                                                         ImageUrl='<%# !string.IsNullOrEmpty(Convert.ToString(Eval("UploadedImage"))) 
                                                                         ? Convert.ToString(Eval("UploadedImage")).Replace("~/", "/Content/") 
-                                                                        : "https://placehold.co/400x400?text=Image" %>' />
+                                                                        : "https://placehold.co/400x400?text=" + Convert.ToString(Eval("Productname")) %>' />
                                                                 </div>
                                                             </div>
                                                         </ItemTemplate>
@@ -201,6 +204,18 @@
                                             ToolTip="Open File"><i class="bi-file-earmark-medical"  style="font-size:26px;"></i></asp:LinkButton>
                                     </ItemTemplate>
                                 </asp:TemplateField>
+                                <asp:TemplateField HeaderText="Design Status" ItemStyle-Width="150" HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center">
+                                    <ItemTemplate>
+                                        <asp:Label ID="lblDesignStatus" runat="server" Font-Bold="true" ForeColor='<%#
+                                                (Convert.ToBoolean(Eval("isdesignapproved")) && Convert.ToBoolean(Eval("SendForDesign")))
+                                                    ? System.Drawing.ColorTranslator.FromHtml("#f36700")
+                                                    : (!Convert.ToBoolean(Eval("isdesignapproved")) && Convert.ToBoolean(Eval("SendForDesign")))
+                                                        ? System.Drawing.ColorTranslator.FromHtml("#0064FF")
+                                                        : System.Drawing.Color.Red
+                                            %>'
+                                            Text='<%#Eval("DesignerStatus")%>'></asp:Label>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
                                 <asp:TemplateField HeaderText="ACTION" HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center" HeaderStyle-Width="160px">
                                     <ItemTemplate>
                                         <asp:LinkButton ID="btnEdit"
@@ -238,10 +253,10 @@
                                                 Convert.ToBoolean(Eval("isdesignapproved"))
                                             %>'
                                             Text='<%#
-                                                Convert.ToBoolean(Eval("CancelStatus")) ? "Canceled" :
-                                                Convert.ToBoolean(Eval("HoldStatus")) ? "On Hold" :
-                                                Convert.ToBoolean(Eval("isdesignapproved")) ? "Approved" :
-                                                "Not Approved"
+                                                Convert.ToBoolean(Eval("CancelStatus")) ? "<i><small>W/O Canceled</small></i>" :
+                                                Convert.ToBoolean(Eval("HoldStatus")) ? "<i><small>W/O On Hold</small></i>" :
+                                                Convert.ToBoolean(Eval("isdesignapproved")) ? "<i><small>W/O Approved</small></i>" :
+                                                "W/O Not Approved</small></i>"
                                             %>'
                                             ForeColor='<%#
                                                 Convert.ToBoolean(Eval("CancelStatus")) ? System.Drawing.Color.Red :

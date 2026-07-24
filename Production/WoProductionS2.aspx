@@ -422,8 +422,17 @@
                 success: function (response) {
                     var rows = JSON.parse(response.d);
                     AssignWorkOrders = [];
+
+                    if (!rows || rows.length === 0) {
+
+                        $("#woContainer").html(
+                            "<div class='alert alert-info mb-0'>No work orders assigned to this machine.</div>"
+                        );
+
+                        return;
+                    }
+
                     var grouped = {};
-                    debugger;
                     $.each(rows, function (i, row) {
                         if (!grouped[row.ProductionID]) {
                             grouped[row.ProductionID] = {

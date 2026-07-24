@@ -55,6 +55,7 @@ public partial class DealerList : System.Web.UI.Page
         cmd.SelectCommand.Parameters.AddWithValue("@FullName", txtcompanyname.Text);
         cmd.SelectCommand.Parameters.AddWithValue("@ShowRecords", ddlPageSize.SelectedValue);
         cmd.Fill(dt);
+
         GVCompany.DataSource = dt;
         GVCompany.DataBind();
     }

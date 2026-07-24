@@ -1,4 +1,4 @@
-<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" EnableEventValidation="false" AutoEventWireup="true" Async="true" CodeFile="UserList.aspx.cs" Inherits="UserList" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" EnableEventValidation="false" AutoEventWireup="true" Async="true" CodeFile="UserList.aspx.cs" Inherits="UserList" %>
 
 
 <%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="asp" %>
@@ -133,7 +133,7 @@
                         <div class="col-md-3">
                             <asp:Label ID="Label1" runat="server" Font-Bold="true" CssClass="form-label">Search:</asp:Label>
                             <asp:TextBox ID="txtcompanyname" CssClass="form-control" runat="server" Width="100%" autocomplete="off"></asp:TextBox>
-                           <%-- <asp:AutoCompleteExtender ID="AutoCompleteExtender1" runat="server" CompletionListCssClass="completionList"
+                            <%-- <asp:AutoCompleteExtender ID="AutoCompleteExtender1" runat="server" CompletionListCssClass="completionList"
                                 CompletionListHighlightedItemCssClass="itemHighlighted" CompletionListItemCssClass="listItem"
                                 CompletionInterval="10" MinimumPrefixLength="1" ServiceMethod="GetCompanyList"
                                 TargetControlID="txtcompanyname" Enabled="true">
@@ -166,37 +166,37 @@
                         <asp:GridView ID="GVCompany" runat="server" DataKeyNames="ID" OnRowDataBound="GVCompany_RowDataBound" CssClass="table table-bordered table-striped" HeaderStyle-BackColor="#2d6be0"
                             HeaderStyle-Font-Bold="true" HeaderStyle-HorizontalAlign="Center" AutoGenerateColumns="false" OnRowCommand="GVCompany_RowCommand">
                             <Columns>
-                                <asp:TemplateField HeaderText="Sr.No." HeaderStyle-ForeColor="White"  ItemStyle-HorizontalAlign="Center">
+                                <asp:TemplateField HeaderText="Sr.No." HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center">
                                     <ItemTemplate>
                                         <asp:Label ID="lblsno" runat="server" Text='<%# Container.DataItemIndex+1 %>'></asp:Label>
                                     </ItemTemplate>
                                 </asp:TemplateField>
-                                <asp:TemplateField HeaderText="User Code" HeaderStyle-ForeColor="White"  ItemStyle-HorizontalAlign="Center">
+                                <asp:TemplateField HeaderText="User Code" HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center">
                                     <ItemTemplate>
                                         <asp:Label ID="lblUserCode" runat="server" Text='<%#Eval("UserCode")%>'></asp:Label>
                                     </ItemTemplate>
                                 </asp:TemplateField>
-                                <asp:TemplateField HeaderText="User Name" HeaderStyle-ForeColor="White"  ItemStyle-HorizontalAlign="Center" >
+                                <asp:TemplateField HeaderText="User Name" HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center">
                                     <ItemTemplate>
                                         <asp:Label ID="lblFullName" runat="server" Text='<%#Eval("FullName")%>'></asp:Label>
                                     </ItemTemplate>
                                 </asp:TemplateField>
-                                <asp:TemplateField HeaderText="Email Id" HeaderStyle-ForeColor="White"  ItemStyle-HorizontalAlign="Center">
+                                <asp:TemplateField HeaderText="Email Id" HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center">
                                     <ItemTemplate>
                                         <asp:Label ID="lblEmail" runat="server" Text='<%#Eval("EmailId")%>'></asp:Label>
                                     </ItemTemplate>
                                 </asp:TemplateField>
-                                <asp:TemplateField HeaderText="Password" HeaderStyle-ForeColor="White"  ItemStyle-HorizontalAlign="Center">
+                                <asp:TemplateField HeaderText="Password" HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center">
                                     <ItemTemplate>
                                         <asp:Label ID="lblPassword" runat="server" Text='<%#Eval("LoginPass")%>'></asp:Label>
                                     </ItemTemplate>
                                 </asp:TemplateField>
-                                <asp:TemplateField HeaderText="User Role" HeaderStyle-ForeColor="White"  ItemStyle-HorizontalAlign="Center">
+                                <asp:TemplateField HeaderText="User Role" HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center">
                                     <ItemTemplate>
                                         <asp:Label ID="lblUserRole" runat="server" Text='<%#Eval("UserRole")%>'></asp:Label>
                                     </ItemTemplate>
                                 </asp:TemplateField>
-                                <asp:TemplateField HeaderText="Activate" HeaderStyle-ForeColor="White"  ItemStyle-HorizontalAlign="Center">
+                                <asp:TemplateField HeaderText="Activate" HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center">
                                     <ItemTemplate>
                                         <label class="switch">
                                             <input type="checkbox" class="ipCheckToggle" data-id='<%# Eval("ID") %>' onchange="updateStatus(this)"
@@ -205,7 +205,7 @@
                                         </label>
                                     </ItemTemplate>
                                 </asp:TemplateField>
-                                <asp:TemplateField HeaderText="ACTION" HeaderStyle-ForeColor="White"  ItemStyle-HorizontalAlign="Center">
+                                <asp:TemplateField HeaderText="ACTION" HeaderStyle-ForeColor="White" ItemStyle-HorizontalAlign="Center">
                                     <ItemTemplate>
                                         <asp:LinkButton ID="btnEdit" runat="server" ToolTip="Edit Company" CommandName="RowEdit" CommandArgument='<%#Eval("ID")%>' CssClass="btn btn-outline-info  btn-sm"><i class='bi bi-pencil'></i></asp:LinkButton>
                                         <asp:LinkButton ID="btnDelete" runat="server" ToolTip="Delete Company" CommandName="RowDelete" OnClientClick="Javascript:return confirm('Are you sure to Delete?')" CommandArgument='<%#Eval("ID")%>' CssClass="btn btn-outline-danger  btn-sm"><i class='bi bi-trash3-fill'></i></asp:LinkButton>
@@ -213,6 +213,9 @@
                                 </asp:TemplateField>
                             </Columns>
                         </asp:GridView>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <asp:Label ID="lblRecordInfo" runat="server" CssClass="text-muted" Font-Size="13px"></asp:Label>
                     </div>
                 </div>
             </div>
